@@ -1,7 +1,0 @@
-cart = [
-    {"item": "pen", "price": 10},
-    {"item": "notebook", "price": 50},
-    {"item": "eraser", "price": 5}
-]
-for object in cart["item"]:
-    print(object in cart["item"])
