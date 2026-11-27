@@ -345,9 +345,7 @@
 
 <div class="stack-container">
 
-  <!-- ===================================================================== -->
-  <!-- TOP SECTION: CONSERVATION OF ANGULAR MOMENTUM                         -->
-  <!-- ===================================================================== -->
+  <!-- TOP SECTION: CONSERVATION OF ANGULAR MOMENTUM -->
   <section id="section-angular" class="lab-section">
     <div class="section-banner">
       <h2>Part 1: Conservation of Angular Momentum</h2>
@@ -396,4 +394,897 @@
         <div class="formula-box">
           <strong>Core Governing Equations:</strong>
           <div class="eq">I = I<sub>0</sub> + 2mr<sup>2</sup></div>
-          <div class="eq">L = I
+          <div class="eq">L = I<sub>1</sub>&omega;<sub>1</sub> = I<sub>2</sub>&omega;<sub>2</sub> = const</div>
+          <div>Pulling the masses inward decreases <strong>Moment of Inertia (I)</strong>, forcing <strong>Angular Speed (&omega;)</strong> to rise proportionally so total angular momentum <strong>L</strong> stays constant.</div>
+        </div>
+      </div>
+
+      <!-- CENTER: CANVAS -->
+      <div class="card sim-container">
+        <h3>2. Frictionless Turntable Experiment</h3>
+        <div style="position:relative;">
+          <canvas id="angCanvas" class="sim-canvas"></canvas>
+          <div class="hud-overlay" id="angHud">
+            Configuration: <strong>Extended Arms (r = 1.00 m)</strong><br/>
+            External Torque (&tau;<sub>ext</sub>): <strong>0.00 N·m (Isolated)</strong><br/>
+            Angular Momentum (L): <strong>3.17 kg·m&sup2;/s</strong>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i class="dot" style="background:#f97316"></i> Sliding Weights (m)</span>
+          <span><i class="dot" style="background:#38bdf8"></i> Radius Vector (r)</span>
+          <span><i class="dot" style="background:#22c55e"></i> Tangential Velocity Trail</span>
+        </div>
+      </div>
+
+      <!-- RIGHT: TELEMETRY -->
+      <div class="card">
+        <h3>3. Live Rotational Telemetry</h3>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Rod Base Inertia (I<sub>0</sub>)</div>
+            <div class="stat-val" style="color:#94a3b8">0.12 kg·m&sup2;</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Total Inertia (I)</div>
+            <div class="stat-val" id="angStatI" style="color:#60a5fa">1.12 kg·m&sup2;</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Angular Speed (&omega;)</div>
+            <div class="stat-val" id="angStatOmega" style="color:#fb923c">2.83 rad/s</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Rotation Rate (RPM)</div>
+            <div class="stat-val" id="angStatRpm" style="color:#facc15">27 RPM</div>
+          </div>
+        </div>
+
+        <div class="bar-card">
+          <div class="bar-header">
+            <strong>Conserved Angular Momentum (L = I&omega;)</strong>
+            <span id="angStatL" style="color:var(--green); font-weight:700;">3.17 kg·m&sup2;/s</span>
+          </div>
+          <div class="stacked-bar">
+            <div class="seg-1" id="angBarI0" style="width:11%"></div>
+            <div class="seg-2" id="angBarWeights" style="width:89%"></div>
+          </div>
+          <div class="bar-sub">
+            <span style="color:#60a5fa" id="angPctI0">Rod I₀: 11%</span>
+            <span style="color:#fb923c" id="angPctW">Weights (2mr²): 89%</span>
+          </div>
+        </div>
+
+        <div class="bar-card">
+          <div class="bar-header">
+            <strong>Rotational Kinetic Energy (KE<sub>rot</sub> = &frac12;I&omega;&sup2;)</strong>
+            <span id="angStatKE" style="color:var(--accent); font-weight:700;">4.48 J</span>
+          </div>
+          <div class="formula-box" id="angNote" style="margin:0;">
+            <strong>Longer distance (r = 1.00 m):</strong> Higher inertia (1.12 kg·m&sup2;) &rarr; slower spin (27 RPM) to keep <strong>L = I&omega;</strong> conserved.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OBSERVATION LOG TABLE -->
+    <div class="card">
+      <h3 style="display:flex; justify-content:space-between; align-items:center;">
+        <span>Observation Log (Angular Momentum Virtual e-Lab Table)</span>
+        <button class="preset-btn" onclick="angClearLog()">Clear Log</button>
+      </h3>
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>Trial</th>
+            <th>Distance r (m)</th>
+            <th>Mass m (kg)</th>
+            <th>Inertia I (kg·m&sup2;)</th>
+            <th>Angular Speed &omega; (rad/s)</th>
+            <th>RPM</th>
+            <th>Angular Momentum L (kg·m&sup2;/s)</th>
+          </tr>
+        </thead>
+        <tbody id="angLogBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- BOTTOM SECTION: CONSERVATION OF LINEAR MOMENTUM (1D COLLISIONS) -->
+  <section id="section-linear" class="lab-section">
+    <div class="section-banner">
+      <h2>Part 2: 1D Collision &amp; Conservation of Linear Momentum</h2>
+      <span class="pill">m&#8321;u&#8321; + m&#8322;u&#8322; = m&#8321;v&#8321; + m&#8322;v&#8322;</span>
+    </div>
+
+    <div class="main-grid">
+      <!-- LEFT PANEL: CONTROLS -->
+      <div class="card">
+        <h3>1. Collision Setup</h3>
+
+        <div class="control-group">
+          <div class="control-header">
+            <label style="color:#60a5fa">Mass of Moving Block (m<sub>1</sub>)</label>
+            <span id="m1Val">4.0 kg</span>
+          </div>
+          <input type="range" id="m1Slider" min="1" max="15" step="0.5" value="4" />
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <label style="color:#60a5fa">Initial Velocity of Block 1 (u<sub>1</sub>)</label>
+            <span id="u1Val">6.0 m/s</span>
+          </div>
+          <input type="range" id="u1Slider" min="1" max="12" step="0.5" value="6" />
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <label style="color:#fb923c">Mass of Stationary Block (m<sub>2</sub>)</label>
+            <span id="m2Val">4.0 kg</span>
+          </div>
+          <input type="range" id="m2Slider" min="1" max="15" step="0.5" value="4" />
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <label>Coefficient of Restitution (e)</label>
+            <span id="eVal">1.00 (Elastic)</span>
+          </div>
+          <input type="range" id="eSlider" min="0" max="1" step="0.05" value="1" />
+          <div class="preset-row">
+            <button class="preset-btn" id="btnInelastic" onclick="linSetRestitution(0)">e = 0 (Stick)</button>
+            <button class="preset-btn" id="btnPartial" onclick="linSetRestitution(0.5)">e = 0.5</button>
+            <button class="preset-btn active" id="btnElastic" onclick="linSetRestitution(1)">e = 1 (Elastic)</button>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="action btn-play" id="linPlayBtn" onclick="linTogglePlay()">LAUNCH BLOCK 1</button>
+          <button class="action btn-slow" id="linSlowBtn" onclick="linToggleSlowMo()">Slow-Mo: OFF</button>
+          <button class="action btn-reset" onclick="linResetSim()">Reset Track</button>
+        </div>
+
+        <div class="formula-box">
+          <strong>Core Governing Equations:</strong>
+          <div class="eq">m<sub>1</sub>u<sub>1</sub> + 0 = m<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub></div>
+          <div class="eq">e = (v<sub>2</sub> &minus; v<sub>1</sub>) / u<sub>1</sub></div>
+          <div>No matter what value of <strong>e</strong> you choose, <strong>Total Linear Momentum</strong> before and after impact remains 100% identical!</div>
+        </div>
+      </div>
+
+      <!-- CENTER PANEL: CANVAS -->
+      <div class="card sim-container">
+        <h3>2. Frictionless Air-Track Experiment</h3>
+        <div style="position:relative;">
+          <canvas id="linCanvas" class="sim-canvas"></canvas>
+          <div class="hud-overlay" id="linHudText">
+            Phase: <strong>READY TO LAUNCH</strong><br/>
+            Collision Type: <strong>Perfectly Elastic (e = 1.00)</strong><br/>
+            Block 2 Initial Velocity (u<sub>2</sub>): <strong>0.0 m/s (At Rest)</strong>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i class="dot" style="background:#3b82f6"></i> Block 1 (Initially Moving)</span>
+          <span><i class="dot" style="background:#f97316"></i> Block 2 (Initially At Rest)</span>
+          <span><i class="dot" style="background:#22c55e"></i> Velocity Vector (v)</span>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: TELEMETRY -->
+      <div class="card">
+        <h3>3. Momentum &amp; Energy Breakdown</h3>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Block 1 Velocity (v<sub>1</sub>)</div>
+            <div class="stat-val" id="statV1" style="color:#60a5fa">6.00 m/s</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Block 2 Velocity (v<sub>2</sub>)</div>
+            <div class="stat-val" id="statV2" style="color:#fb923c">0.00 m/s</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Block 1 Momentum (p<sub>1</sub>)</div>
+            <div class="stat-val" id="statP1" style="color:#60a5fa">24.0 kg·m/s</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Block 2 Momentum (p<sub>2</sub>)</div>
+            <div class="stat-val" id="statP2" style="color:#fb923c">0.0 kg·m/s</div>
+          </div>
+        </div>
+
+        <!-- MOMENTUM CONSERVATION BAR -->
+        <div class="bar-card">
+          <div class="bar-header">
+            <strong>Total Linear Momentum (P<sub>total</sub>)</strong>
+            <span id="totalMomVal" style="color:var(--green); font-weight:700;">24.0 kg·m/s</span>
+          </div>
+          <div class="stacked-bar">
+            <div class="seg-1" id="momBar1" style="width:100%"></div>
+            <div class="seg-2" id="momBar2" style="width:0%"></div>
+          </div>
+          <div class="bar-sub">
+            <span style="color:#60a5fa" id="momPct1">p₁: 100%</span>
+            <span style="color:#fb923c" id="momPct2">p₂: 0%</span>
+          </div>
+        </div>
+
+        <!-- KINETIC ENERGY BAR -->
+        <div class="bar-card">
+          <div class="bar-header">
+            <strong>Total Kinetic Energy (KE = &frac12;mv&sup2;)</strong>
+            <span id="totalKeVal" style="color:var(--accent); font-weight:700;">72.0 J</span>
+          </div>
+          <div class="stacked-bar">
+            <div class="seg-1" id="keBar1" style="width:100%"></div>
+            <div class="seg-2" id="keBar2" style="width:0%"></div>
+            <div class="seg-lost" id="keBarLost" style="width:0%"></div>
+          </div>
+          <div class="bar-sub">
+            <span style="color:#60a5fa" id="kePct1">KE₁: 100%</span>
+            <span style="color:#fb923c" id="kePct2">KE₂: 0%</span>
+            <span style="color:#ef4444" id="kePctLost">Heat/Sound: 0%</span>
+          </div>
+        </div>
+
+        <!-- BEFORE VS AFTER TABLE -->
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Quantity</th>
+              <th>Before Hit</th>
+              <th>After Hit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Total P (kg·m/s)</td>
+              <td id="tblPBefore">24.00</td>
+              <td id="tblPAfter" style="color:var(--green); font-weight:700;">24.00</td>
+            </tr>
+            <tr>
+              <td>Total KE (J)</td>
+              <td id="tblKEBefore">72.00</td>
+              <td id="tblKEAfter">72.00</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="formula-box">
+          <strong>Try This in Class:</strong><br/>
+          1. Set <strong>m<sub>1</sub> = m<sub>2</sub></strong> and <strong>e = 1</strong> &rarr; Block 1 stops completely and transfers 100% of its momentum to Block 2.<br/>
+          2. Set <strong>e = 0</strong> &rarr; Both blocks stick together and move as one combined mass.
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  function resizeCanvases() {
+    const dpr = window.devicePixelRatio || 1;
+    ['angCanvas', 'linCanvas'].forEach(id => {
+      const c = document.getElementById(id);
+      if (c && c.clientWidth > 0) {
+        c.width = c.clientWidth * dpr;
+        c.height = c.clientHeight * dpr;
+        c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+    });
+  }
+  window.addEventListener('resize', resizeCanvases);
+
+  // MODULE 1: ANGULAR MOMENTUM SIMULATION
+  const angCanvas = document.getElementById('angCanvas');
+  const angCtx = angCanvas.getContext('2d');
+
+  const I0 = 0.12;
+  const conservedL = 3.17;
+  let angR = 1.00;
+  let angM = 0.50;
+  let angTheta = 0.4;
+  let angRunning = true;
+  let angSliding = false;
+  let angSlideTarget = 0.40;
+  let angTrail = [];
+  let angTrialCount = 0;
+
+  function getAngPhysics() {
+    const weightsI = 2 * angM * angR * angR;
+    const totalI = I0 + weightsI;
+    const omega = conservedL / totalI;
+    const rpm = (omega * 60) / (2 * Math.PI);
+    const keRot = 0.5 * totalI * omega * omega;
+    return { weightsI, totalI, omega, rpm, keRot };
+  }
+
+  document.getElementById('angRSlider').addEventListener('input', ev => {
+    angSliding = false;
+    angR = parseFloat(ev.target.value);
+    document.getElementById('angRVal').textContent = angR.toFixed(2) + ' m';
+    document.getElementById('angBtnLong').classList.toggle('active', Math.abs(angR - 1.00) < 0.02);
+    document.getElementById('angBtnShort').classList.toggle('active', Math.abs(angR - 0.40) < 0.02);
+    angTrail = [];
+  });
+
+  document.getElementById('angMSlider').addEventListener('input', ev => {
+    angM = parseFloat(ev.target.value);
+    document.getElementById('angMVal').textContent = angM.toFixed(2) + ' kg';
+  });
+
+  function angSetCase(mode) {
+    angSliding = false;
+    angR = mode === 'long' ? 1.00 : 0.40;
+    document.getElementById('angRSlider').value = angR;
+    document.getElementById('angRVal').textContent = angR.toFixed(2) + ' m';
+    document.getElementById('angBtnLong').classList.toggle('active', mode === 'long');
+    document.getElementById('angBtnShort').classList.toggle('active', mode === 'short');
+    angTrail = [];
+  }
+
+  function angAnimateSlide() {
+    angRunning = true;
+    document.getElementById('angPlayBtn').textContent = 'PAUSE ROTATION';
+    document.getElementById('angPlayBtn').classList.add('paused');
+    angSlideTarget = angR > 0.70 ? 0.40 : 1.00;
+    angSliding = true;
+  }
+
+  function angTogglePlay() {
+    angRunning = !angRunning;
+    const btn = document.getElementById('angPlayBtn');
+    btn.textContent = angRunning ? 'PAUSE ROTATION' : 'RESUME ROTATION';
+    btn.classList.toggle('paused', angRunning);
+  }
+
+  function angReset() {
+    angM = 0.50;
+    document.getElementById('angMSlider').value = 0.50;
+    document.getElementById('angMVal').textContent = '0.50 kg';
+    angSetCase('long');
+    angRunning = true;
+    const btn = document.getElementById('angPlayBtn');
+    btn.textContent = 'PAUSE ROTATION';
+    btn.classList.add('paused');
+  }
+
+  function angRecordTrial(customLabel) {
+    angTrialCount++;
+    const p = getAngPhysics();
+    const label = customLabel || `Trial ${angTrialCount}`;
+    const tbody = document.getElementById('angLogBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${label}</td>
+      <td>${angR.toFixed(2)}</td>
+      <td>${angM.toFixed(2)}</td>
+      <td>${p.totalI.toFixed(2)}</td>
+      <td style="color:#fb923c; font-weight:700;">${p.omega.toFixed(2)}</td>
+      <td style="color:#facc15; font-weight:700;">${Math.round(p.rpm)}</td>
+      <td style="color:#22c55e; font-weight:700;">${conservedL.toFixed(2)}</td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  function angClearLog() {
+    document.getElementById('angLogBody').innerHTML = '';
+    angTrialCount = 0;
+  }
+
+  function updateAngTelemetry() {
+    const p = getAngPhysics();
+    document.getElementById('angStatI').textContent = p.totalI.toFixed(2) + ' kg·m²';
+    document.getElementById('angStatOmega').textContent = p.omega.toFixed(2) + ' rad/s';
+    document.getElementById('angStatRpm').textContent = Math.round(p.rpm) + ' RPM';
+    document.getElementById('angStatL').textContent = conservedL.toFixed(2) + ' kg·m²/s';
+    document.getElementById('angStatKE').textContent = p.keRot.toFixed(2) + ' J';
+
+    const pctI0 = Math.round((I0 / p.totalI) * 100);
+    const pctW = 100 - pctI0;
+    document.getElementById('angBarI0').style.width = pctI0 + '%';
+    document.getElementById('angBarWeights').style.width = pctW + '%';
+    document.getElementById('angPctI0').textContent = `Rod I₀: ${pctI0}%`;
+    document.getElementById('angPctW').textContent = `Weights (2mr²): ${pctW}%`;
+
+    const isShort = angR < 0.65;
+    document.getElementById('angNote').innerHTML = isShort
+      ? `<strong>Shorter distance (r = ${angR.toFixed(2)} m):</strong> Lower inertia (${p.totalI.toFixed(2)} kg·m²) &rarr; rotation speeds up (${Math.round(p.rpm)} RPM) to keep <strong>L = I&omega;</strong> conserved.`
+      : `<strong>Longer distance (r = ${angR.toFixed(2)} m):</strong> Higher inertia (${p.totalI.toFixed(2)} kg·m²) &rarr; rotation is slower (${Math.round(p.rpm)} RPM) to keep <strong>L = I&omega;</strong> conserved.`;
+
+    document.getElementById('angHud').innerHTML = `
+      Weight Radius (r): <strong>${angR.toFixed(2)} m</strong><br/>
+      External Torque (&tau;<sub>ext</sub>): <strong>0.00 N·m (Isolated)</strong><br/>
+      Angular Momentum (L): <strong style="color:#22c55e">${conservedL.toFixed(2)} kg·m²/s</strong>
+    `;
+  }
+
+  function drawAngularScene(dt) {
+    const p = getAngPhysics();
+
+    if (angRunning) {
+      angTheta += p.omega * dt;
+      if (angSliding) {
+        const diff = angSlideTarget - angR;
+        if (Math.abs(diff) < 0.01) {
+          angR = angSlideTarget;
+          angSliding = false;
+        } else {
+          angR += Math.sign(diff) * 0.45 * dt;
+        }
+        document.getElementById('angRSlider').value = angR;
+        document.getElementById('angRVal').textContent = angR.toFixed(2) + ' m';
+        document.getElementById('angBtnLong').classList.toggle('active', Math.abs(angR - 1.00) < 0.02);
+        document.getElementById('angBtnShort').classList.toggle('active', Math.abs(angR - 0.40) < 0.02);
+      }
+    }
+
+    const w = angCanvas.clientWidth;
+    const h = angCanvas.clientHeight;
+    angCtx.clearRect(0, 0, w, h);
+
+    angCtx.strokeStyle = 'rgba(148, 163, 184, 0.07)';
+    angCtx.lineWidth = 1;
+    for (let gx = 0; gx < w; gx += 36) {
+      angCtx.beginPath(); angCtx.moveTo(gx, 0); angCtx.lineTo(gx, h); angCtx.stroke();
+    }
+    for (let gy = 0; gy < h; gy += 36) {
+      angCtx.beginPath(); angCtx.moveTo(0, gy); angCtx.lineTo(w, gy); angCtx.stroke();
+    }
+
+    const cx = w * 0.5;
+    const cy = h * 0.48;
+    const tilt = 0.42;
+    const pxPerMeter = Math.min(w, h) * 0.34;
+    const rPx = angR * pxPerMeter;
+
+    angCtx.save();
+    angCtx.strokeStyle = 'rgba(56, 189, 248, 0.32)';
+    angCtx.setLineDash([6, 6]);
+    angCtx.lineWidth = 1.8;
+    angCtx.beginPath();
+    angCtx.ellipse(cx, cy - 28, rPx, rPx * tilt, 0, 0, Math.PI * 2);
+    angCtx.stroke();
+    angCtx.restore();
+
+    angCtx.fillStyle = '#334155';
+    angCtx.beginPath();
+    angCtx.ellipse(cx, cy + 75, 46, 18, 0, 0, Math.PI * 2);
+    angCtx.fill();
+
+    angCtx.fillStyle = '#475569';
+    angCtx.fillRect(cx - 26, cy + 48, 52, 27);
+    angCtx.beginPath();
+    angCtx.ellipse(cx, cy + 48, 26, 10, 0, 0, Math.PI * 2);
+    angCtx.fill();
+
+    angCtx.strokeStyle = '#94a3b8';
+    angCtx.lineWidth = 8;
+    angCtx.lineCap = 'round';
+    angCtx.beginPath();
+    angCtx.moveTo(cx, cy + 48);
+    angCtx.lineTo(cx, cy - 34);
+    angCtx.stroke();
+
+    const dx = Math.cos(angTheta) * rPx;
+    const dy = Math.sin(angTheta) * rPx * tilt;
+    const pivotY = cy - 28;
+
+    const w1x = cx + dx, w1y = pivotY + dy;
+    const w2x = cx - dx, w2y = pivotY - dy;
+
+    if (angRunning) {
+      angTrail.push({ x1: w1x, y1: w1y, x2: w2x, y2: w2y });
+      if (angTrail.length > 18) angTrail.shift();
+    }
+
+    for (let i = 1; i < angTrail.length; i++) {
+      const alpha = (i / angTrail.length) * 0.55;
+      angCtx.strokeStyle = `rgba(249, 115, 22, ${alpha})`;
+      angCtx.lineWidth = 3;
+      angCtx.beginPath();
+      angCtx.moveTo(angTrail[i - 1].x1, angTrail[i - 1].y1);
+      angCtx.lineTo(angTrail[i].x1, angTrail[i].y1);
+      angCtx.stroke();
+
+      angCtx.beginPath();
+      angCtx.moveTo(angTrail[i - 1].x2, angTrail[i - 1].y2);
+      angCtx.lineTo(angTrail[i].x2, angTrail[i].y2);
+      angCtx.stroke();
+    }
+
+    const barExt = 1.24 * pxPerMeter;
+    const bx = Math.cos(angTheta) * barExt;
+    const by = Math.sin(angTheta) * barExt * tilt;
+    angCtx.strokeStyle = '#cbd5e1';
+    angCtx.lineWidth = 5;
+    angCtx.beginPath();
+    angCtx.moveTo(cx - bx, pivotY - by);
+    angCtx.lineTo(cx + bx, pivotY + by);
+    angCtx.stroke();
+
+    angCtx.fillStyle = '#facc15';
+    angCtx.beginPath();
+    angCtx.arc(cx, pivotY, 7, 0, Math.PI * 2);
+    angCtx.fill();
+
+    const weights = [
+      { x: w1x, y: w1y, depth: Math.sin(angTheta) },
+      { x: w2x, y: w2y, depth: -Math.sin(angTheta) }
+    ].sort((a, b) => a.depth - b.depth);
+
+    const sphereR = 12 + angM * 7;
+    for (const wt of weights) {
+      angCtx.save();
+      angCtx.shadowColor = 'rgba(249, 115, 22, 0.75)';
+      angCtx.shadowBlur = 16;
+      const grad = angCtx.createRadialGradient(wt.x - 4, wt.y - 4, 2, wt.x, wt.y, sphereR);
+      grad.addColorStop(0, '#fde047');
+      grad.addColorStop(0.55, '#f97316');
+      grad.addColorStop(1, '#9a3412');
+      angCtx.fillStyle = grad;
+      angCtx.beginPath();
+      angCtx.arc(wt.x, wt.y, sphereR, 0, Math.PI * 2);
+      angCtx.fill();
+      angCtx.restore();
+
+      angCtx.fillStyle = '#38bdf8';
+      angCtx.font = 'bold 11px monospace';
+      angCtx.textAlign = 'center';
+      angCtx.fillText(`r=${angR.toFixed(2)}m`, wt.x, wt.y - sphereR - 7);
+    }
+  }
+
+  // MODULE 2: LINEAR MOMENTUM (1D COLLISIONS)
+  const linCanvas = document.getElementById('linCanvas');
+  const linCtx = linCanvas.getContext('2d');
+
+  let m1 = 4.0;
+  let m2 = 4.0;
+  let u1 = 6.0;
+  let e = 1.0;
+
+  let x1 = 150;
+  let x2 = 460;
+  let v1 = u1;
+  let v2 = 0;
+  let hasCollided = false;
+  let linRunning = false;
+  let slowMo = false;
+  let flashTimer = 0;
+  let initialMomentum = m1 * u1;
+  let initialKE = 0.5 * m1 * u1 * u1;
+
+  function getRestitutionLabel(val) {
+    if (val === 1) return `${val.toFixed(2)} (Elastic)`;
+    if (val === 0) return `${val.toFixed(2)} (Perfectly Inelastic)`;
+    return `${val.toFixed(2)} (Partially Elastic)`;
+  }
+
+  function updatePresetButtons() {
+    document.getElementById('btnInelastic').classList.toggle('active', e === 0);
+    document.getElementById('btnPartial').classList.toggle('active', e > 0 && e < 1);
+    document.getElementById('btnElastic').classList.toggle('active', e === 1);
+  }
+
+  function linSetRestitution(val) {
+    e = val;
+    document.getElementById('eSlider').value = val;
+    document.getElementById('eVal').textContent = getRestitutionLabel(val);
+    updatePresetButtons();
+    linResetSim();
+  }
+
+  document.getElementById('m1Slider').addEventListener('input', ev => {
+    m1 = parseFloat(ev.target.value);
+    document.getElementById('m1Val').textContent = m1.toFixed(1) + ' kg';
+    linResetSim();
+  });
+
+  document.getElementById('u1Slider').addEventListener('input', ev => {
+    u1 = parseFloat(ev.target.value);
+    document.getElementById('u1Val').textContent = u1.toFixed(1) + ' m/s';
+    linResetSim();
+  });
+
+  document.getElementById('m2Slider').addEventListener('input', ev => {
+    m2 = parseFloat(ev.target.value);
+    document.getElementById('m2Val').textContent = m2.toFixed(1) + ' kg';
+    linResetSim();
+  });
+
+  document.getElementById('eSlider').addEventListener('input', ev => {
+    e = parseFloat(ev.target.value);
+    document.getElementById('eVal').textContent = getRestitutionLabel(e);
+    updatePresetButtons();
+    linResetSim();
+  });
+
+  function linTogglePlay() {
+    const w = linCanvas.clientWidth;
+    if (x2 > w + 100 || x1 > w + 100 || x1 < -100) {
+      linResetSim();
+    }
+    linRunning = !linRunning;
+    const btn = document.getElementById('linPlayBtn');
+    btn.textContent = linRunning ? 'PAUSE SIMULATION' : 'RESUME SIMULATION';
+    btn.classList.toggle('paused', linRunning);
+  }
+
+  function linToggleSlowMo() {
+    slowMo = !slowMo;
+    const btn = document.getElementById('linSlowBtn');
+    btn.textContent = slowMo ? 'Slow-Mo: ON (0.25x)' : 'Slow-Mo: OFF';
+  }
+
+  function computePostCollisionVelocities() {
+    const v1After = ((m1 - e * m2) / (m1 + m2)) * u1;
+    const v2After = ((1 + e) * m1 / (m1 + m2)) * u1;
+    return { v1After, v2After };
+  }
+
+  function linResetSim() {
+    linRunning = false;
+    hasCollided = false;
+    flashTimer = 0;
+    const btn = document.getElementById('linPlayBtn');
+    btn.textContent = 'LAUNCH BLOCK 1';
+    btn.classList.remove('paused');
+
+    const w = linCanvas.clientWidth || 640;
+    x1 = Math.max(110, w * 0.2);
+    x2 = Math.max(340, w * 0.56);
+    v1 = u1;
+    v2 = 0;
+
+    initialMomentum = m1 * u1;
+    initialKE = 0.5 * m1 * u1 * u1;
+
+    updateLinTelemetry();
+  }
+
+  function getBlockSize(mass) {
+    const size = 48 + Math.sqrt(mass) * 11;
+    return { w: size, h: size * 0.85 };
+  }
+
+  function updateLinPhysics(dt) {
+    if (!linRunning) return;
+    const speedScale = (slowMo ? 0.25 : 1.0) * 58;
+
+    const b1 = getBlockSize(m1);
+    const b2 = getBlockSize(m2);
+
+    x1 += v1 * dt * speedScale;
+    x2 += v2 * dt * speedScale;
+
+    const rightEdge1 = x1 + b1.w / 2;
+    const leftEdge2 = x2 - b2.w / 2;
+
+    if (!hasCollided && rightEdge1 >= leftEdge2) {
+      const mid = (rightEdge1 + leftEdge2) / 2;
+      x1 = mid - b1.w / 2;
+      x2 = mid + b2.w / 2;
+
+      const res = computePostCollisionVelocities();
+      v1 = res.v1After;
+      v2 = res.v2After;
+      hasCollided = true;
+      flashTimer = 0.35;
+    }
+
+    if (flashTimer > 0) flashTimer = Math.max(0, flashTimer - dt);
+
+    const w = linCanvas.clientWidth;
+    if (x2 - b2.w / 2 > w + 60 && (x1 - b1.w / 2 > w + 60 || x1 + b1.w / 2 < -60)) {
+      linRunning = false;
+      const btn = document.getElementById('linPlayBtn');
+      btn.textContent = 'REPLAY COLLISION';
+      btn.classList.remove('paused');
+    }
+  }
+
+  function updateLinTelemetry() {
+    const p1 = m1 * v1;
+    const p2 = m2 * v2;
+    const totalP = p1 + p2;
+
+    const ke1 = 0.5 * m1 * v1 * v1;
+    const ke2 = 0.5 * m2 * v2 * v2;
+    const totalKE = ke1 + ke2;
+
+    const predicted = computePostCollisionVelocities();
+    const predictedP = m1 * predicted.v1After + m2 * predicted.v2After;
+    const predictedKE = 0.5 * m1 * predicted.v1After ** 2 + 0.5 * m2 * predicted.v2After ** 2;
+
+    document.getElementById('statV1').textContent = v1.toFixed(2) + ' m/s';
+    document.getElementById('statV2').textContent = v2.toFixed(2) + ' m/s';
+    document.getElementById('statP1').textContent = p1.toFixed(2) + ' kg·m/s';
+    document.getElementById('statP2').textContent = p2.toFixed(2) + ' kg·m/s';
+
+    const p1Share = Math.max(0, (p1 / initialMomentum) * 100);
+    const p2Share = Math.max(0, (p2 / initialMomentum) * 100);
+    document.getElementById('totalMomVal').textContent = totalP.toFixed(2) + ' kg·m/s';
+    document.getElementById('momBar1').style.width = Math.min(100, p1Share) + '%';
+    document.getElementById('momBar2').style.width = Math.min(100, p2Share) + '%';
+    document.getElementById('momPct1').textContent = `p₁: ${p1.toFixed(1)}`;
+    document.getElementById('momPct2').textContent = `p₂: ${p2.toFixed(1)}`;
+
+    const ke1Share = (ke1 / initialKE) * 100;
+    const ke2Share = (ke2 / initialKE) * 100;
+    const keLostShare = Math.max(0, 100 - ke1Share - ke2Share);
+
+    document.getElementById('totalKeVal').textContent = totalKE.toFixed(1) + ' J';
+    document.getElementById('keBar1').style.width = ke1Share + '%';
+    document.getElementById('keBar2').style.width = ke2Share + '%';
+    document.getElementById('keBarLost').style.width = keLostShare + '%';
+    document.getElementById('kePct1').textContent = `KE₁: ${Math.round(ke1Share)}%`;
+    document.getElementById('kePct2').textContent = `KE₂: ${Math.round(ke2Share)}%`;
+    document.getElementById('kePctLost').textContent = `Heat/Sound: ${Math.round(keLostShare)}%`;
+
+    document.getElementById('tblPBefore').textContent = initialMomentum.toFixed(2);
+    document.getElementById('tblPAfter').textContent = predictedP.toFixed(2);
+    document.getElementById('tblKEBefore').textContent = initialKE.toFixed(2);
+    document.getElementById('tblKEAfter').textContent = predictedKE.toFixed(2);
+
+    const phase = hasCollided ? 'AFTER COLLISION (Momentum Conserved!)' : (linRunning ? 'APPROACHING TARGET...' : 'READY TO LAUNCH');
+    document.getElementById('linHudText').innerHTML = `
+      Phase: <strong style="color:${hasCollided ? '#22c55e' : '#38bdf8'}">${phase}</strong><br/>
+      Mode: <strong>${getRestitutionLabel(e)}</strong><br/>
+      Coupled Together? <strong>${e === 0 && hasCollided ? 'YES (Moving as m₁ + m₂)' : 'NO'}</strong>
+    `;
+  }
+
+  function drawArrow(fromX, fromY, toX, toY, color, label) {
+    const dx = toX - fromX;
+    if (Math.abs(dx) < 4) return;
+    const headlen = 9;
+    const angle = Math.atan2(toY - fromY, dx);
+    linCtx.save();
+    linCtx.strokeStyle = color;
+    linCtx.fillStyle = color;
+    linCtx.lineWidth = 3;
+    linCtx.beginPath();
+    linCtx.moveTo(fromX, fromY);
+    linCtx.lineTo(toX, toY);
+    linCtx.stroke();
+
+    linCtx.beginPath();
+    linCtx.moveTo(toX, toY);
+    linCtx.lineTo(toX - headlen * Math.cos(angle - Math.PI / 6), toY - headlen * Math.sin(angle - Math.PI / 6));
+    linCtx.lineTo(toX - headlen * Math.cos(angle + Math.PI / 6), toY - headlen * Math.sin(angle + Math.PI / 6));
+    linCtx.closePath();
+    linCtx.fill();
+
+    if (label) {
+      linCtx.font = 'bold 12px monospace';
+      linCtx.textAlign = 'center';
+      linCtx.fillText(label, (fromX + toX) / 2, fromY - 10);
+    }
+    linCtx.restore();
+  }
+
+  function drawLinScene() {
+    const w = linCanvas.clientWidth;
+    const h = linCanvas.clientHeight;
+    linCtx.clearRect(0, 0, w, h);
+
+    linCtx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
+    linCtx.lineWidth = 1;
+    for (let gx = 0; gx < w; gx += 40) {
+      linCtx.beginPath(); linCtx.moveTo(gx, 0); linCtx.lineTo(gx, h); linCtx.stroke();
+    }
+    for (let gy = 0; gy < h; gy += 40) {
+      linCtx.beginPath(); linCtx.moveTo(0, gy); linCtx.lineTo(w, gy); linCtx.stroke();
+    }
+
+    const trackY = h * 0.68;
+
+    linCtx.fillStyle = '#1e293b';
+    linCtx.fillRect(0, trackY, w, 14);
+    linCtx.strokeStyle = '#38bdf8';
+    linCtx.lineWidth = 2;
+    linCtx.beginPath();
+    linCtx.moveTo(0, trackY);
+    linCtx.lineTo(w, trackY);
+    linCtx.stroke();
+
+    linCtx.fillStyle = '#64748b';
+    linCtx.font = '10px monospace';
+    linCtx.textAlign = 'center';
+    for (let mx = 60; mx < w - 30; mx += 58) {
+      linCtx.fillRect(mx, trackY + 2, 1, 6);
+      linCtx.fillText(((mx - 60) / 58).toFixed(0) + 'm', mx, trackY + 26);
+    }
+
+    const b1 = getBlockSize(m1);
+    const b2 = getBlockSize(m2);
+
+    if (flashTimer > 0) {
+      const contactX = x1 + b1.w / 2;
+      const contactY = trackY - Math.min(b1.h, b2.h) / 2;
+      linCtx.save();
+      linCtx.globalAlpha = flashTimer / 0.35;
+      const grad = linCtx.createRadialGradient(contactX, contactY, 2, contactX, contactY, 55);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.4, '#fde047');
+      grad.addColorStop(1, 'rgba(249, 115, 22, 0)');
+      linCtx.fillStyle = grad;
+      linCtx.beginPath();
+      linCtx.arc(contactX, contactY, 55, 0, Math.PI * 2);
+      linCtx.fill();
+      linCtx.restore();
+    }
+
+    drawLinBlock(x1, trackY - b1.h, b1.w, b1.h, '#2563eb', '#60a5fa', `m₁ = ${m1.toFixed(1)} kg`, v1);
+    drawLinBlock(x2, trackY - b2.h, b2.w, b2.h, '#ea580c', '#fb923c', `m₂ = ${m2.toFixed(1)} kg`, v2);
+
+    if (e === 0 && hasCollided) {
+      linCtx.fillStyle = '#22c55e';
+      linCtx.font = 'bold 12px sans-serif';
+      linCtx.textAlign = 'center';
+      linCtx.fillText('LOCKED TOGETHER (e = 0)', (x1 + x2) / 2, trackY - Math.max(b1.h, b2.h) - 52);
+    }
+  }
+
+  function drawLinBlock(cx, topY, bw, bh, fillCol, borderCol, massText, vel) {
+    const leftX = cx - bw / 2;
+
+    linCtx.fillStyle = '#94a3b8';
+    linCtx.beginPath();
+    linCtx.arc(leftX + bw * 0.25, topY + bh - 2, 4, 0, Math.PI * 2);
+    linCtx.arc(leftX + bw * 0.75, topY + bh - 2, 4, 0, Math.PI * 2);
+    linCtx.fill();
+
+    linCtx.fillStyle = fillCol;
+    linCtx.strokeStyle = borderCol;
+    linCtx.lineWidth = 2.5;
+    linCtx.beginPath();
+    linCtx.roundRect(leftX, topY, bw, bh - 4, 8);
+    linCtx.fill();
+    linCtx.stroke();
+
+    linCtx.fillStyle = '#ffffff';
+    linCtx.font = 'bold 12px sans-serif';
+    linCtx.textAlign = 'center';
+    linCtx.fillText(massText, cx, topY + (bh - 4) / 2 + 4);
+
+    const arrowY = topY - 22;
+    if (Math.abs(vel) > 0.02) {
+      const arrowLen = vel * 12;
+      drawArrow(cx, arrowY, cx + arrowLen, arrowY, '#22c55e', `v = ${vel.toFixed(2)} m/s`);
+    } else {
+      linCtx.fillStyle = '#94a3b8';
+      linCtx.font = 'bold 11px monospace';
+      linCtx.fillText('v = 0.00 m/s (Rest)', cx, arrowY + 4);
+    }
+  }
+
+  // MAIN ANIMATION LOOP & INITIALIZATION
+  let lastTime = performance.now();
+  function mainLoop(now) {
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+
+    drawAngularScene(dt);
+    updateAngTelemetry();
+
+    updateLinPhysics(dt);
+    updateLinTelemetry();
+    drawLinScene();
+
+    requestAnimationFrame(mainLoop);
+  }
+
+  resizeCanvases();
+  angSetCase('long');
+  angRecordTrial('Case 1 (Long)');
+  angSetCase('short');
+  angRecordTrial('Case 2 (Short)');
+  angSetCase('long');
+  linResetSim();
+  requestAnimationFrame(mainLoop);
+</script>
+</body>
+</html>
