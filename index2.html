@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Physics Around Us — Rocket Propulsion &amp; Variable-Mass Momentum Lab</title>
+  <title>Physics Around Us — Rocket Propulsion &amp; Variable-Mass Momentum</title>
   <style>
     :root {
       --bg: #0b0f19;
@@ -488,35 +488,404 @@
   const canvas = document.getElementById('rocketCanvas');
   const ctx = canvas.getContext('2d');
 
-  // Physics constants & parameters
-  const dryMass = 400;        // kg
-  let initialFuel = 600;      // kg
-  let fuelMass = initialFuel; // kg
-  let ve = 2500;              // m/s
-  let burnRate = 60;          // kg/s
+  const dryMass = 400;
+  let initialFuel = 600;
+  let fuelMass = initialFuel;
+  let ve = 2500;
+  let burnRate = 60;
 
-  // Dynamic state
-  let rocketVel = 0;          // m/s
-  let pExhaust = 0;           // kg*m/s (negative direction)
+  let rocketVel = 0;
+  let pExhaust = 0;
   let burning = false;
   let slowMo = false;
   let flightTime = 0;
   let trialCount = 0;
 
-  // Visuals
   let stars = [];
   let particles = [];
-  let rocketVisualX = 180;
+  let rocketVisualX = null;
+
+  function getCanvasDims() {
+    const rect = canvas.getBoundingClientRect();
+    const w = Math.max(320, Math.round(rect.width || canvas.clientWidth || (canvas.parentElement ? canvas.parentElement.clientWidth : 680) || 680));
+    const h = Math.max(260, Math.round(rect.height || canvas.clientHeight || 430));
+    return { w, h };
+  }
 
   function resizeCanvas() {
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = canvas.clientWidth * dpr;
-    canvas.height = canvas.clientHeight * dpr;
+    const { w, h } = getCanvasDims();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    initStars();
+    if (stars.length === 0) initStars(w, h);
+    if (rocketVisualX === null) rocketVisualX = Math.max(120, w * 0.36);
   }
-  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('resize', () => {
+    stars = [];
+    rocketVisualX = null;
+    resizeCanvas();
+  });
 
-  function initStars() {
-    const w = canvas.clientWidth || 700;
-    const h = canvas.clientHeight || 43
+  function initStars(w, h) {
+    stars = [];
+    for (let i = 0; i < 70; i++) {
+      stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: 0.8 + Math.random() * 1.6,
+        speedFactor: 0.3 + Math.random() * 0.75
+      });
+    }
+  }
+
+  function drawRoundedRect(x, y, w, h, r) {
+    const radius = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.arcTo(x + w, y, x + w, y + h, radius);
+    ctx.arcTo(x + w, y + h, x, y + h, radius);
+    ctx.arcTo(x, y + h, x, y, radius);
+    ctx.arcTo(x, y, x + w, y, radius);
+    ctx.closePath();
+  }
+
+  function applyPreset(type) {
+    document.getElementById('btnSolid').classList.toggle('active', type === 'solid');
+    document.getElementById('btnKero').classList.toggle('active', type === 'kero');
+    document.getElementById('btnHydro').classList.toggle('active', type === 'hydro');
+
+    if (type === 'solid') {
+      ve = 2000; initialFuel = 500; burnRate = 100;
+    } else if (type === 'kero') {
+      ve = 2500; initialFuel = 600; burnRate = 60;
+    } else {
+      ve = 4200; initialFuel = 800; burnRate = 40;
+    }
+
+    document.getElementById('veSlider').value = ve;
+    document.getElementById('fuelSlider').value = initialFuel;
+    document.getElementById('rateSlider').value = burnRate;
+    document.getElementById('veVal').textContent = ve.toLocaleString() + ' m/s';
+    document.getElementById('fuelVal').textContent = initialFuel.toLocaleString() + ' kg';
+    document.getElementById('rateVal').textContent = burnRate + ' kg/s';
+
+    resetMission();
+  }
+
+  document.getElementById('veSlider').addEventListener('input', ev => {
+    ve = parseFloat(ev.target.value);
+    document.getElementById('veVal').textContent = ve.toLocaleString() + ' m/s';
+    clearPresetHighlight();
+  });
+
+  document.getElementById('fuelSlider').addEventListener('input', ev => {
+    initialFuel = parseFloat(ev.target.value);
+    document.getElementById('fuelVal').textContent = initialFuel.toLocaleString() + ' kg';
+    clearPresetHighlight();
+    resetMission();
+  });
+
+  document.getElementById('rateSlider').addEventListener('input', ev => {
+    burnRate = parseFloat(ev.target.value);
+    document.getElementById('rateVal').textContent = burnRate + ' kg/s';
+    clearPresetHighlight();
+  });
+
+  function clearPresetHighlight() {
+    ['btnSolid', 'btnKero', 'btnHydro'].forEach(id => document.getElementById(id).classList.remove('active'));
+  }
+
+  function toggleBurn() {
+    if (fuelMass <= 0) {
+      resetMission();
+    }
+    burning = !burning;
+    updateButtonUI();
+  }
+
+  function toggleSlowMo() {
+    slowMo = !slowMo;
+    document.getElementById('slowBtn').textContent = slowMo ? 'Slow-Mo: ON (0.25x)' : 'Slow-Mo: OFF';
+  }
+
+  function updateButtonUI() {
+    const btn = document.getElementById('igniteBtn');
+    const fuelSlider = document.getElementById('fuelSlider');
+    fuelSlider.disabled = burning || fuelMass < initialFuel;
+
+    if (fuelMass <= 0) {
+      btn.textContent = 'MECO — REFUEL & RELAUNCH';
+      btn.classList.remove('burning');
+    } else if (burning) {
+      btn.textContent = 'CUTOFF ENGINE (PAUSE)';
+      btn.classList.add('burning');
+    } else {
+      btn.textContent = flightTime > 0 ? 'RESUME BURN' : 'IGNITE ENGINE';
+      btn.classList.remove('burning');
+    }
+  }
+
+  function resetMission() {
+    const { w } = getCanvasDims();
+    burning = false;
+    fuelMass = initialFuel;
+    rocketVel = 0;
+    pExhaust = 0;
+    flightTime = 0;
+    particles = [];
+    rocketVisualX = Math.max(120, w * 0.36);
+    updateButtonUI();
+    updateTelemetry();
+  }
+
+  function stepPhysics(dt) {
+    const { w, h } = getCanvasDims();
+    if (rocketVisualX === null) rocketVisualX = Math.max(120, w * 0.36);
+    const effectiveDt = dt * (slowMo ? 0.25 : 1.0);
+
+    const starScroll = Math.min(rocketVel * 0.18, 950) * effectiveDt;
+    for (const s of stars) {
+      s.x -= starScroll * s.speedFactor;
+      if (s.x < 0) {
+        s.x = w;
+        s.y = Math.random() * h;
+      }
+    }
+
+    if (burning && fuelMass > 0) {
+      flightTime += effectiveDt;
+      const dm = Math.min(fuelMass, burnRate * effectiveDt);
+      fuelMass -= dm;
+      const currentMass = dryMass + fuelMass;
+
+      const dv = (dm * ve) / currentMass;
+      rocketVel += dv;
+      pExhaust -= dm * ve;
+
+      const baseX = Math.max(120, w * 0.36);
+      const targetX = Math.min(w * 0.56, baseX + rocketVel * 0.05);
+      rocketVisualX += (targetX - rocketVisualX) * 2.5 * effectiveDt;
+
+      const spawnCount = Math.min(8, Math.max(2, Math.ceil(burnRate / 20)));
+      for (let i = 0; i < spawnCount; i++) {
+        particles.push({
+          x: rocketVisualX - 14,
+          y: h * 0.56 + (Math.random() - 0.5) * 18,
+          vx: -180 - (ve / 4500) * 420 - Math.random() * 90,
+          vy: (Math.random() - 0.5) * 55,
+          life: 1.0,
+          size: 3 + Math.random() * 4.5
+        });
+      }
+
+      if (fuelMass <= 0) {
+        fuelMass = 0;
+        burning = false;
+        updateButtonUI();
+      }
+    }
+
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.x += p.vx * effectiveDt;
+      p.y += p.vy * effectiveDt;
+      p.life -= 1.35 * effectiveDt;
+      if (p.life <= 0) particles.splice(i, 1);
+    }
+  }
+
+  function updateTelemetry() {
+    const currentMass = dryMass + fuelMass;
+    const thrust = (burning && fuelMass > 0) ? ve * burnRate : 0;
+    const accel = thrust / currentMass;
+    const pRocket = currentMass * rocketVel;
+    const pNet = pRocket + pExhaust;
+
+    document.getElementById('velHud').textContent = rocketVel.toFixed(1) + ' m/s';
+    document.getElementById('statThrust').textContent = (thrust / 1000).toFixed(1) + ' kN';
+    document.getElementById('statAccel').textContent = accel.toFixed(1) + ' m/s²';
+    document.getElementById('statPRocket').textContent = Math.round(pRocket).toLocaleString() + ' kg·m/s';
+    document.getElementById('statPExhaust').textContent = Math.round(pExhaust).toLocaleString() + ' kg·m/s';
+
+    document.getElementById('statMass').textContent = Math.round(currentMass).toLocaleString() + ' kg';
+    const dryPct = (dryMass / currentMass) * 100;
+    document.getElementById('barDry').style.width = dryPct + '%';
+    document.getElementById('barFuel').style.width = (100 - dryPct) + '%';
+    document.getElementById('barFuelTxt').textContent = `Fuel: ${Math.round(fuelMass).toLocaleString()} kg`;
+
+    document.getElementById('statPNet').textContent = pNet.toFixed(1) + ' kg·m/s';
+
+    const statusStr = fuelMass <= 0
+      ? '<strong style="color:#facc15">MAIN ENGINE CUTOFF (Coasting)</strong>'
+      : (burning ? '<strong style="color:#22c55e">THRUSTING IN ZERO-G</strong>' : '<strong style="color:#38bdf8">STANDBY ON PAD</strong>');
+
+    document.getElementById('hudText').innerHTML = `
+      Status: ${statusStr}<br/>
+      Dry Structure Mass (m<sub>f</sub>): <strong>${dryMass} kg</strong><br/>
+      Flight Time (t): <strong>${flightTime.toFixed(1)} s</strong>
+    `;
+
+    const m0 = dryMass + initialFuel;
+    const theoDv = ve * Math.log(m0 / currentMass);
+    document.getElementById('liveInsight').innerHTML = flightTime > 0
+      ? `<strong>Conservation Verified:</strong> Rocket gained <strong>+${Math.round(pRocket).toLocaleString()} kg·m/s</strong> while exhaust carried <strong>${Math.round(pExhaust).toLocaleString()} kg·m/s</strong>. Theoretical &Delta;v so far: <strong>${theoDv.toFixed(1)} m/s</strong>.`
+      : `<strong>Momentum Balance:</strong> Before ignition, total system momentum is <strong>0 kg·m/s</strong>. Every kilogram of gas thrown backward gives the rocket an equal forward impulse.`;
+  }
+
+  function recordMissionTrial() {
+    trialCount++;
+    const m0 = dryMass + initialFuel;
+    const mf = dryMass + fuelMass;
+    const ratio = m0 / mf;
+    const theoDv = ve * Math.log(ratio);
+    const pNet = mf * rocketVel + pExhaust;
+
+    const tbody = document.getElementById('missionLogBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>Burn ${trialCount}</td>
+      <td>${ve.toLocaleString()} m/s</td>
+      <td>${ratio.toFixed(2)}</td>
+      <td style="color:#4ade80; font-weight:700;">${rocketVel.toFixed(1)} m/s</td>
+      <td style="color:#facc15; font-weight:700;">${theoDv.toFixed(1)} m/s</td>
+      <td style="color:#38bdf8;">${pNet.toFixed(1)} kg·m/s</td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  function clearMissionLog() {
+    document.getElementById('missionLogBody').innerHTML = '';
+    trialCount = 0;
+  }
+
+  function drawScene() {
+    const { w, h } = getCanvasDims();
+    if (stars.length === 0) initStars(w, h);
+    if (rocketVisualX === null) rocketVisualX = Math.max(120, w * 0.36);
+
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#050811';
+    ctx.fillRect(0, 0, w, h);
+
+    for (const s of stars) {
+      ctx.fillStyle = `rgba(226, 232, 240, ${0.4 + s.speedFactor * 0.55})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const centerY = Math.max(150, h * 0.56);
+    const rx = Math.min(Math.max(80, rocketVisualX), Math.max(140, w - 210));
+
+    for (const p of particles) {
+      ctx.fillStyle = `rgba(249, 115, 22, ${Math.max(0, p.life * 0.85)})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (burning && fuelMass > 0) {
+      const flameLen = 48 + (ve / 4500) * 85 + Math.random() * 18;
+      const grad = ctx.createLinearGradient(rx - 10, centerY, rx - 10 - flameLen, centerY);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.25, '#facc15');
+      grad.addColorStop(0.65, '#f97316');
+      grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.moveTo(rx - 10, centerY - 13);
+      ctx.lineTo(rx - 10 - flameLen, centerY);
+      ctx.lineTo(rx - 10, centerY + 13);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Engine nozzle
+    ctx.fillStyle = '#64748b';
+    ctx.beginPath();
+    ctx.moveTo(rx, centerY - 10);
+    ctx.lineTo(rx - 14, centerY - 16);
+    ctx.lineTo(rx - 14, centerY + 16);
+    ctx.lineTo(rx, centerY + 10);
+    ctx.closePath();
+    ctx.fill();
+
+    // Swept fins
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.moveTo(rx + 8, centerY - 22);
+    ctx.lineTo(rx - 12, centerY - 40);
+    ctx.lineTo(rx + 34, centerY - 22);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(rx + 8, centerY + 22);
+    ctx.lineTo(rx - 12, centerY + 40);
+    ctx.lineTo(rx + 34, centerY + 22);
+    ctx.closePath();
+    ctx.fill();
+
+    // Main cylindrical fuselage
+    const bodyW = 128;
+    const bodyH = 44;
+    const topY = centerY - bodyH / 2;
+
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    drawRoundedRect(rx, topY, bodyW, bodyH, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    // Live propellant tank gauge
+    const fuelPct = Math.max(0, fuelMass / initialFuel);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(rx + 12, topY + 9, bodyW - 24, bodyH - 18);
+    ctx.fillStyle = '#22c55e';
+    ctx.fillRect(rx + 12, topY + 9, (bodyW - 24) * fuelPct, bodyH - 18);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`FUEL ${Math.round(fuelPct * 100)}%`, rx + bodyW / 2, centerY + 4);
+
+    // Nose cone
+    ctx.fillStyle = '#3b82f6';
+    ctx.strokeStyle = '#93c5fd';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(rx + bodyW, topY);
+    ctx.quadraticCurveTo(rx + bodyW + 26, topY + 4, rx + bodyW + 44, centerY);
+    ctx.quadraticCurveTo(rx + bodyW + 26, topY + bodyH - 4, rx + bodyW, topY + bodyH);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Mass label above rocket
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(`Total Mass = ${Math.round(dryMass + fuelMass)} kg`, rx + bodyW / 2 + 12, topY - 14);
+  }
+
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+
+    stepPhysics(dt);
+    updateTelemetry();
+    drawScene();
+
+    requestAnimationFrame(loop);
+  }
+
+  resizeCanvas();
+  resetMission();
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>
