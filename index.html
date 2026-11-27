@@ -654,127 +654,621 @@
   </script>
 </body>
 </html>
-```html
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket Propulsion: Conservation of Linear Momentum</title>
-    <!-- Tailwind CSS for crisp, responsive, presentation-grade styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter & JetBrains Mono for technical precision -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- MathJax for crisp rendering of physics equations -->
-    <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-            svg: { fontCache: 'global' }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rocket Propulsion &amp; Linear Momentum — Virtual Physics e-Lab</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --panel: #0f172a;
+      --card: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --cyan: #38bdf8;
+      --purple: #8b5cf6;
+      --green: #22c55e;
+      --orange: #f97316;
+      --yellow: #facc15;
+    }
 
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        space: {
-                            950: '#060913',
-                            900: '#0b1021',
-                            800: '#131b36',
-                            700: '#1e294b',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <style>
-        /* Custom styling for sleek range sliders & canvas crispness */
-        body {
-            background-color: #060913;
-            color: #f8fafc;
-            overflow-x: hidden;
-            user-select: none;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      line-height: 1.5;
+    }
 
-        input[type="range"] {
-            -webkit-appearance: none;
-            appearance: none;
-            background: transparent;
-            cursor: pointer;
-        }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-        input[type="range"]::-webkit-slider-runnable-track {
-            height: 6px;
-            border-radius: 999px;
-            background: #1e294b;
-        }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #38bdf8;
-            border: 2px solid #060913;
-            margin-top: -6px;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
-            transition: transform 0.15s ease, background-color 0.15s ease;
-        }
+    header h1 {
+      font-size: 1.35rem;
+      letter-spacing: 0.5px;
+      color: var(--yellow);
+      text-transform: uppercase;
+    }
 
-        input[type="range"]::-webkit-slider-thumb:hover {
-            transform: scale(1.15);
-            background: #7dd3fc;
-        }
+    header p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
 
-        input[type="range"]:disabled::-webkit-slider-thumb {
-            background: #64748b;
-            box-shadow: none;
-            cursor: not-allowed;
-        }
+    .badge {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
 
-        /* Custom subtle scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0b1021;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e294b;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #334155;
-        }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
 
-        .glass-panel {
-            background: rgba(19, 27, 54, 0.72);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(148, 163, 184, 0.15);
-        }
+    @media (max-width: 900px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
 
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(249, 115, 22, 0.4); }
-            50% { box-shadow: 0 0 28px rgba(249, 115, 22, 0.8); }
-        }
-        .ignite-active {
-            animation: pulse-glow 1.5s infinite;
-        }
-    </style>
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      background: #070b14;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hud-overlay {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      text-align: right;
+      pointer-events: none;
+    }
+
+    .hud-val {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 0 18px rgba(56, 189, 248, 0.45);
+    }
+
+    .hud-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    button {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 13px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    button:hover { border-color: var(--cyan); }
+    button.primary { background: var(--cyan); color: #0b1120; border-color: var(--cyan); }
+    button.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+    button.green { background: rgba(34, 197, 94, 0.15); border-color: var(--green); color: var(--green); }
+
+    .sliders-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+      background: var(--card);
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .sliders-box { grid-template-columns: 1fr; }
+    }
+
+    .slider-item label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .slider-item span.val {
+      color: var(--cyan);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #38bdf8;
+      cursor: pointer;
+    }
+
+    .metrics-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .metrics-header h2 {
+      font-size: 0.9rem;
+      letter-spacing: 0.8px;
+      color: var(--cyan);
+      text-transform: uppercase;
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card);
+      padding: 9px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .metric-val {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: var(--yellow);
+    }
+
+    .callout {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(249, 115, 22, 0.12);
+      border: 1px solid rgba(249, 115, 22, 0.45);
+      font-size: 0.8rem;
+      color: #fed7aa;
+    }
+
+    .table-card h2 {
+      font-size: 0.92rem;
+      color: var(--yellow);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-variant-numeric: tabular-nums;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-sky-500 selection:text-white">
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Rocket Propulsion &amp; Linear Momentum — Virtual e-Lab</h1>
+        <p>Ejecting high-speed exhaust mass to accelerate a rocket in zero-gravity space</p>
+      </div>
+      <span class="badge">&Delta;p<sub>rocket</sub> + &Delta;p<sub>exhaust</sub> = 0 &nbsp;|&nbsp; F<sub>thrust</sub> = v<sub>e</sub>(dm/dt)</span>
+    </header>
 
-    <!-- Top Navigation / Presentation Header -->
-    <header class="glass-panel border-b border-slate-800 px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-30">
-        <div cla
+    <div class="main-grid">
+      <!-- Simulation Viewport -->
+      <div class="card">
+        <div class="canvas-wrap">
+          <canvas id="simCanvas" width="960" height="600"></canvas>
+          <div class="hud-overlay">
+            <div class="hud-val" id="velOverlay">0.0 m/s</div>
+            <div class="hud-label">Rocket Velocity</div>
+          </div>
+        </div>
+
+        <div class="controls-bar">
+          <button class="primary" id="burnBtn">Ignite / Pause</button>
+          <button id="resetBtn">Reset Mission</button>
+          <button class="preset-btn active" data-ve="1500" data-fuel="600">Low v_e (1.5 km/s)</button>
+          <button class="preset-btn" data-ve="3000" data-fuel="750">Standard v_e (3.0 km/s)</button>
+          <button class="preset-btn" data-ve="4500" data-fuel="850">High-Isp (4.5 km/s)</button>
+          <button class="green" id="recordBtn">Record Trial</button>
+        </div>
+
+        <div class="sliders-box">
+          <div class="slider-item">
+            <label>Exhaust Speed (v<sub>e</sub>) <span class="val" id="veLabel">1,500 m/s</span></label>
+            <input type="range" id="veSlider" min="800" max="5000" step="100" value="1500" />
+          </div>
+          <div class="slider-item">
+            <label>Burn Rate (dm/dt) <span class="val" id="rateLabel">80 kg/s</span></label>
+            <input type="range" id="rateSlider" min="20" max="200" step="10" value="80" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Physics Metrics -->
+      <div class="card">
+        <div class="metrics-header">
+          <h2>Live Physics Metrics</h2>
+          <span id="statusTag" style="font-size:0.75rem; color:var(--green); font-weight:700;">● READY</span>
+        </div>
+
+        <div class="metric-row">
+          <span>Current Rocket Mass (m)</span>
+          <span class="metric-val" id="massVal">1,000 kg</span>
+        </div>
+        <div class="metric-row">
+          <span>Remaining Propellant</span>
+          <span class="metric-val" id="fuelVal">600 kg</span>
+        </div>
+        <div class="metric-row">
+          <span>Thrust Force (F = v<sub>e</sub> · dm/dt)</span>
+          <span class="metric-val" id="thrustVal">120.0 kN</span>
+        </div>
+        <div class="metric-row">
+          <span>Rocket Momentum (m · v)</span>
+          <span class="metric-val" id="rocketMomVal">0.0 kg·m/s</span>
+        </div>
+        <div class="metric-row">
+          <span>Exhaust Momentum (p<sub>gas</sub>)</span>
+          <span class="metric-val" id="gasMomVal">0.0 kg·m/s</span>
+        </div>
+        <div class="metric-row">
+          <span>Net System Momentum (p<sub>total</sub>)</span>
+          <span class="metric-val" id="netMomVal">0.0 kg·m/s</span>
+        </div>
+
+        <div class="callout" id="physicsNote">
+          <strong>Conservation of Momentum:</strong> As propellant is expelled backward at speed <strong>v<sub>e</sub></strong>, the rocket gains forward momentum equal and opposite to the ejected exhaust (assuming zero external net force).
+        </div>
+      </div>
+    </div>
+
+    <!-- Observation Log -->
+    <div class="card table-card">
+      <h2>
+        <span>Observation Log (Virtual e-Lab Table)</span>
+        <button id="clearLogBtn" style="font-size:0.74rem; padding:5px 10px;">Clear Log</button>
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Trial</th>
+            <th>Dry Mass</th>
+            <th>Exhaust v<sub>e</sub></th>
+            <th>Final Mass Ratio (m&#8320;/m<sub>f</sub>)</th>
+            <th>Final Velocity</th>
+            <th>Tsiolkovsky &Delta;v</th>
+          </tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("simCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const dryMass = 400;
+    let initialFuel = 600;
+    let fuelMass = initialFuel;
+    let ve = 1500;       // exhaust speed in m/s (scaled visually)
+    let burnRate = 80;    // kg/s
+    let rocketVel = 0;    // m/s
+    let exhaustMom = 0;   // accumulated backward momentum
+    let rocketX = 200;
+    let burning = false;
+    let particles = [];
+    let trialCount = 0;
+
+    function getCurrentMass() {
+      return dryMass + fuelMass;
+    }
+
+    function resetMission(newVe = ve, newFuel = initialFuel) {
+      ve = newVe;
+      initialFuel = newFuel;
+      fuelMass = initialFuel;
+      rocketVel = 0;
+      exhaustMom = 0;
+      rocketX = 200;
+      burning = false;
+      particles = [];
+
+      document.getElementById("veSlider").value = ve;
+      document.getElementById("veLabel").textContent = `${ve.toLocaleString()} m/s`;
+      document.getElementById("rateLabel").textContent = `${burnRate} kg/s`;
+      document.getElementById("burnBtn").textContent = "Ignite / Pause";
+    }
+
+    function stepPhysics(dt) {
+      if (!burning) return;
+
+      if (fuelMass <= 0) {
+        fuelMass = 0;
+        burning = false;
+        document.getElementById("burnBtn").textContent = "Ignite / Pause";
+        return;
+      }
+
+      const dm = Math.min(fuelMass, burnRate * dt);
+      const mBefore = getCurrentMass();
+      fuelMass -= dm;
+      const mAfter = getCurrentMass();
+
+      // Momentum conservation in zero-g: m_before * v = m_after * (v + dv) + dm * (v - ve)
+      // => m_after * dv = dm * ve
+      const dv = (dm * ve) / mAfter;
+      rocketVel += dv;
+      exhaustMom -= dm * ve;
+
+      // Visual motion
+      rocketX += Math.min(rocketVel * 0.08, 12) * dt * 60;
+      if (rocketX > canvas.width - 220) {
+        rocketX = 160;
+      }
+
+      // Spawn exhaust particles
+      const count = Math.min(6, Math.max(1, Math.floor(dm / 1.5)));
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: rocketX - 10,
+          y: 290 + (Math.random() - 0.5) * 24,
+          vx: rocketVel * 0.08 - (2.5 + (ve / 1000) * 2.2) - Math.random() * 1.5,
+          vy: (Math.random() - 0.5) * 1.6,
+          life: 1,
+          size: 3 + Math.random() * 4
+        });
+      }
+    }
+
+    function updateParticles(dt) {
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx * dt * 60;
+        p.y += p.vy * dt * 60;
+        p.life -= 0.025 * dt * 60;
+        if (p.life <= 0) particles.splice(i, 1);
+      }
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Subtle space grid
+      ctx.strokeStyle = "rgba(51, 65, 85, 0.22)";
+      ctx.lineWidth = 1;
+      for (let gx = 40; gx < canvas.width; gx += 48) {
+        ctx.beginPath(); ctx.moveTo(gx, 30); ctx.lineTo(gx, canvas.height - 30); ctx.stroke();
+      }
+      for (let gy = 30; gy < canvas.height - 30; gy += 48) {
+        ctx.beginPath(); ctx.moveTo(40, gy); ctx.lineTo(canvas.width - 40, gy); ctx.stroke();
+      }
+
+      // Exhaust particles
+      for (const p of particles) {
+        ctx.fillStyle = `rgba(249, 115, 22, ${p.life * 0.85})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Flame plume when burning
+      if (burning && fuelMass > 0) {
+        const plumeLen = 35 + (ve / 5000) * 65 + Math.random() * 14;
+        const grad = ctx.createLinearGradient(rocketX, 290, rocketX - plumeLen, 290);
+        grad.addColorStop(0, "#facc15");
+        grad.addColorStop(0.5, "#f97316");
+        grad.addColorStop(1, "rgba(239, 68, 68, 0)");
+
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(rocketX, 278);
+        ctx.lineTo(rocketX - plumeLen, 290);
+        ctx.lineTo(rocketX, 302);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Rocket body (horizontal booster)
+      const bodyW = 92;
+      const bodyH = 38;
+      const yTop = 290 - bodyH / 2;
+
+      ctx.shadowColor = "rgba(56, 189, 248, 0.4)";
+      ctx.shadowBlur = 16;
+      ctx.fillStyle = "#1e293b";
+      ctx.strokeStyle = "#38bdf8";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.roundRect(rocketX, yTop, bodyW, bodyH, 8);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Fuel bar inside rocket
+      const fuelRatio = Math.max(0, fuelMass / initialFuel);
+      ctx.fillStyle = "#22c55e";
+      ctx.fillRect(rocketX + 8, yTop + 7, (bodyW - 16) * fuelRatio, bodyH - 14);
+
+      // Nose cone
+      ctx.fillStyle = "#38bdf8";
+      ctx.beginPath();
+      ctx.moveTo(rocketX + bodyW, yTop);
+      ctx.lineTo(rocketX + bodyW + 28, 290);
+      ctx.lineTo(rocketX + bodyW, yTop + bodyH);
+      ctx.closePath();
+      ctx.fill();
+
+      // Label
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 13px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`m = ${Math.round(getCurrentMass())} kg`, rocketX + bodyW / 2 + 8, yTop - 10);
+    }
+
+    function updateMetrics() {
+      const m = getCurrentMass();
+      const thrust = burning && fuelMass > 0 ? ve * burnRate : 0;
+      const pRocket = m * rocketVel;
+      const pNet = pRocket + exhaustMom;
+
+      document.getElementById("velOverlay").textContent = `${rocketVel.toFixed(1)} m/s`;
+      document.getElementById("massVal").textContent = `${Math.round(m).toLocaleString()} kg`;
+      document.getElementById("fuelVal").textContent = `${Math.round(fuelMass).toLocaleString()} kg`;
+      document.getElementById("thrustVal").textContent = `${(thrust / 1000).toFixed(1)} kN`;
+      document.getElementById("rocketMomVal").textContent = `${Math.round(pRocket).toLocaleString()} kg·m/s`;
+      document.getElementById("gasMomVal").textContent = `${Math.round(exhaustMom).toLocaleString()} kg·m/s`;
+      document.getElementById("netMomVal").textContent = `${Math.round(pNet).toLocaleString()} kg·m/s`;
+
+      const statusEl = document.getElementById("statusTag");
+      if (fuelMass <= 0) {
+        statusEl.textContent = "✓ FUEL DEPLETED";
+        statusEl.style.color = "#38bdf8";
+      } else if (burning) {
+        statusEl.textContent = "● BURNING";
+        statusEl.style.color = "#22c55e";
+      } else {
+        statusEl.textContent = "❚❚ STANDBY";
+        statusEl.style.color = "#facc15";
+      }
+    }
+
+    function recordTrial() {
+      trialCount++;
+      const m0 = dryMass + initialFuel;
+      const mf = Math.max(dryMass, getCurrentMass());
+      const massRatio = m0 / mf;
+      const tsiolkovskyDv = ve * Math.log(massRatio);
+
+      const tbody = document.getElementById("logBody");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>Trial ${trialCount}</td>
+        <td>${dryMass} kg</td>
+        <td>${ve.toLocaleString()} m/s</td>
+        <td>${massRatio.toFixed(2)}</td>
+        <td style="color:var(--green); font-weight:700;">${rocketVel.toFixed(1)} m/s</td>
+        <td style="color:var(--yellow); font-weight:700;">${tsiolkovskyDv.toFixed(1)} m/s</td>
+      `;
+      tbody.appendChild(row);
+    }
+
+    document.querySelectorAll(".preset-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        resetMission(Number(btn.dataset.ve), Number(btn.dataset.fuel));
+      });
+    });
+
+    document.getElementById("burnBtn").addEventListener("click", (e) => {
+      if (fuelMass <= 0) resetMission(ve, initialFuel);
+      burning = !burning;
+      e.target.textContent = burning ? "Pause Burn" : "Ignite Burn";
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => resetMission(ve, initialFuel));
+    document.getElementById("recordBtn").addEventListener("click", recordTrial);
+    document.getElementById("clearLogBtn").addEventListener("click", () => {
+      document.getElementById("logBody").innerHTML = "";
+      trialCount = 0;
+    });
+
+    document.getElementById("veSlider").addEventListener("input", (e) => {
+      ve = Number(e.target.value);
+      document.getElementById("veLabel").textContent = `${ve.toLocaleString()} m/s`;
+    });
+
+    document.getElementById("rateSlider").addEventListener("input", (e) => {
+      burnRate = Number(e.target.value);
+      document.getElementById("rateLabel").textContent = `${burnRate} kg/s`;
+    });
+
+    let lastTime = performance.now();
+    function loop(now) {
+      const dt = Math.min(0.05, (now - lastTime) / 1000);
+      lastTime = now;
+      stepPhysics(dt);
+      updateParticles(dt);
+      drawScene();
+      updateMetrics();
+      requestAnimationFrame(loop);
+    }
+
+    resetMission(1500, 600);
+    recordTrial();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
