@@ -40,6 +40,9 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
     }
 
     header h1 {
@@ -51,42 +54,75 @@
 
     header h1 span { color: var(--accent); }
 
-    .nav-tabs {
+    .quick-jumps {
       display: flex;
       gap: 8px;
-      background: #0b1120;
-      padding: 5px;
-      border-radius: 10px;
-      border: 1px solid var(--panel-border);
+      flex-wrap: wrap;
     }
 
-    .tab-btn {
-      padding: 8px 16px;
-      border: none;
+    .jump-btn {
+      padding: 7px 14px;
       border-radius: 7px;
-      background: transparent;
-      color: var(--muted);
+      border: 1px solid var(--panel-border);
+      background: #0b1120;
+      color: var(--accent);
       font-weight: 700;
-      font-size: 0.85rem;
-      cursor: pointer;
+      font-size: 0.8rem;
+      text-decoration: none;
       transition: all 0.2s;
     }
 
-    .tab-btn:hover { color: #fff; }
-    .tab-btn.active {
-      background: var(--accent);
-      color: #0b0f19;
+    .jump-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent);
     }
 
-    .view-section { display: none; flex: 1; flex-direction: column; }
-    .view-section.active { display: flex; }
+    .stack-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 16px;
+    }
+
+    .lab-section {
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .section-banner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--panel-border);
+    }
+
+    .section-banner h2 {
+      font-size: 1.05rem;
+      color: #fff;
+    }
+
+    .section-banner .pill {
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }
 
     .main-grid {
       display: grid;
       grid-template-columns: 330px 1fr 340px;
       gap: 14px;
-      padding: 14px;
-      flex: 1;
     }
     @media (max-width: 1150px) {
       .main-grid { grid-template-columns: 1fr; }
@@ -102,8 +138,8 @@
       gap: 14px;
     }
 
-    .card h2 {
-      font-size: 0.92rem;
+    .card h3 {
+      font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       color: var(--accent);
@@ -295,421 +331,69 @@
       font-family: sans-serif;
       font-weight: 600;
     }
-
-    .bottom-log {
-      margin: 0 14px 14px 14px;
-    }
   </style>
 </head>
 <body>
 
 <header>
   <h1>Physics Around Us: <span>Conservation Laws Virtual e-Lab</span></h1>
-  <div class="nav-tabs">
-    <button class="tab-btn active" id="tabAngular" onclick="switchTab('angular')">1. Angular Momentum (L = I&omega;)</button>
-    <button class="tab-btn" id="tabLinear" onclick="switchTab('linear')">2. Linear Momentum (1D Collisions)</button>
+  <div class="quick-jumps">
+    <a class="jump-btn" href="#section-angular">Top: Angular Momentum</a>
+    <a class="jump-btn" href="#section-linear">Bottom: Linear Momentum</a>
   </div>
 </header>
 
-<!-- ===================================================================== -->
-<!-- SECTION 1: CONSERVATION OF ANGULAR MOMENTUM                           -->
-<!-- ===================================================================== -->
-<section id="viewAngular" class="view-section active">
-  <div class="main-grid">
-    <!-- LEFT: CONTROLS -->
-    <div class="card">
-      <h2>1. Rotating Rod Setup</h2>
+<div class="stack-container">
 
-      <div class="control-group">
-        <div class="control-header">
-          <label style="color:#fb923c">Weight Distance from Axis (r)</label>
-          <span id="angRVal">1.00 m</span>
-        </div>
-        <input type="range" id="angRSlider" min="0.30" max="1.20" step="0.02" value="1.00" />
-      </div>
-
-      <div class="control-group">
-        <div class="control-header">
-          <label style="color:#60a5fa">Mass per Sliding Weight (m)</label>
-          <span id="angMVal">0.50 kg</span>
-        </div>
-        <input type="range" id="angMSlider" min="0.20" max="1.50" step="0.05" value="0.50" />
-      </div>
-
-      <div class="control-group">
-        <div class="control-header">
-          <label>Quick Radius Presets</label>
-          <span>Compare I &amp; &omega;</span>
-        </div>
-        <div class="preset-row two-col">
-          <button class="preset-btn active" id="angBtnLong" onclick="angSetCase('long')">Case 1: Long (r = 1.00 m)</button>
-          <button class="preset-btn" id="angBtnShort" onclick="angSetCase('short')">Case 2: Short (r = 0.40 m)</button>
-        </div>
-      </div>
-
-      <div class="btn-group">
-        <button class="action btn-play paused" id="angPlayBtn" onclick="angTogglePlay()">PAUSE ROTATION</button>
-        <button class="action btn-slow" onclick="angAnimateSlide()">Animate Slide (r&#8321; &rarr; r&#8322;)</button>
-        <button class="action btn-reset" onclick="angReset()">Reset Lab</button>
-        <button class="action btn-record" onclick="angRecordTrial()">Record Trial to Log</button>
-      </div>
-
-      <div class="formula-box">
-        <strong>Core Governing Equations:</strong>
-        <div class="eq">I = I<sub>0</sub> + 2mr<sup>2</sup></div>
-        <div class="eq">L = I<sub>1</sub>&omega;<sub>1</sub> = I<sub>2</sub>&omega;<sub>2</sub> = const</div>
-        <div>Pulling the masses inward decreases <strong>Moment of Inertia (I)</strong>, forcing <strong>Angular Speed (&omega;)</strong> to rise proportionally so total angular momentum <strong>L</strong> stays constant.</div>
-      </div>
+  <!-- ===================================================================== -->
+  <!-- TOP SECTION: CONSERVATION OF ANGULAR MOMENTUM                         -->
+  <!-- ===================================================================== -->
+  <section id="section-angular" class="lab-section">
+    <div class="section-banner">
+      <h2>Part 1: Conservation of Angular Momentum</h2>
+      <span class="pill">L = I&omega; = const</span>
     </div>
 
-    <!-- CENTER: CANVAS -->
-    <div class="card sim-container">
-      <h2>2. Frictionless Turntable Experiment</h2>
-      <div style="position:relative;">
-        <canvas id="angCanvas" class="sim-canvas"></canvas>
-        <div class="hud-overlay" id="angHud">
-          Configuration: <strong>Extended Arms (r = 1.00 m)</strong><br/>
-          External Torque (&tau;<sub>ext</sub>): <strong>0.00 N·m (Isolated)</strong><br/>
-          Angular Momentum (L): <strong>3.17 kg·m&sup2;/s</strong>
+    <div class="main-grid">
+      <!-- LEFT: CONTROLS -->
+      <div class="card">
+        <h3>1. Rotating Rod Setup</h3>
+
+        <div class="control-group">
+          <div class="control-header">
+            <label style="color:#fb923c">Weight Distance from Axis (r)</label>
+            <span id="angRVal">1.00 m</span>
+          </div>
+          <input type="range" id="angRSlider" min="0.30" max="1.20" step="0.02" value="1.00" />
         </div>
-      </div>
-      <div class="legend">
-        <span><i class="dot" style="background:#f97316"></i> Sliding Weights (m)</span>
-        <span><i class="dot" style="background:#38bdf8"></i> Radius Vector (r)</span>
-        <span><i class="dot" style="background:#22c55e"></i> Tangential Velocity Trail</span>
-      </div>
-    </div>
 
-    <!-- RIGHT: TELEMETRY -->
-    <div class="card">
-      <h2>3. Live Rotational Telemetry</h2>
-
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-label">Rod Base Inertia (I<sub>0</sub>)</div>
-          <div class="stat-val" style="color:#94a3b8">0.12 kg·m&sup2;</div>
+        <div class="control-group">
+          <div class="control-header">
+            <label style="color:#60a5fa">Mass per Sliding Weight (m)</label>
+            <span id="angMVal">0.50 kg</span>
+          </div>
+          <input type="range" id="angMSlider" min="0.20" max="1.50" step="0.05" value="0.50" />
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Total Inertia (I)</div>
-          <div class="stat-val" id="angStatI" style="color:#60a5fa">1.12 kg·m&sup2;</div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <label>Quick Radius Presets</label>
+            <span>Compare I &amp; &omega;</span>
+          </div>
+          <div class="preset-row two-col">
+            <button class="preset-btn active" id="angBtnLong" onclick="angSetCase('long')">Case 1: Long (r = 1.00 m)</button>
+            <button class="preset-btn" id="angBtnShort" onclick="angSetCase('short')">Case 2: Short (r = 0.40 m)</button>
+          </div>
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Angular Speed (&omega;)</div>
-          <div class="stat-val" id="angStatOmega" style="color:#fb923c">2.83 rad/s</div>
+
+        <div class="btn-group">
+          <button class="action btn-play paused" id="angPlayBtn" onclick="angTogglePlay()">PAUSE ROTATION</button>
+          <button class="action btn-slow" onclick="angAnimateSlide()">Animate Slide (r&#8321; &rarr; r&#8322;)</button>
+          <button class="action btn-reset" onclick="angReset()">Reset Lab</button>
+          <button class="action btn-record" onclick="angRecordTrial()">Record Trial to Log</button>
         </div>
-        <div class="stat-box">
-          <div class="stat-label">Rotation Rate (RPM)</div>
-          <div class="stat-val" id="angStatRpm" style="color:#facc15">27 RPM</div>
-        </div>
-      </div>
 
-      <div class="bar-card">
-        <div class="bar-header">
-          <strong>Conserved Angular Momentum (L = I&omega;)</strong>
-          <span id="angStatL" style="color:var(--green); font-weight:700;">3.17 kg·m&sup2;/s</span>
-        </div>
-        <div class="stacked-bar">
-          <div class="seg-1" id="angBarI0" style="width:11%"></div>
-          <div class="seg-2" id="angBarWeights" style="width:89%"></div>
-        </div>
-        <div class="bar-sub">
-          <span style="color:#60a5fa" id="angPctI0">Rod I₀: 11%</span>
-          <span style="color:#fb923c" id="angPctW">Weights (2mr²): 89%</span>
-        </div>
-      </div>
-
-      <div class="bar-card">
-        <div class="bar-header">
-          <strong>Rotational Kinetic Energy (KE<sub>rot</sub> = &frac12;I&omega;&sup2;)</strong>
-          <span id="angStatKE" style="color:var(--accent); font-weight:700;">4.48 J</span>
-        </div>
-        <div class="formula-box" id="angNote" style="margin:0;">
-          <strong>Longer distance (r = 1.00 m):</strong> Higher inertia (1.12 kg·m&sup2;) &rarr; slower spin (27 RPM) to keep <strong>L = I&omega;</strong> conserved.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- OBSERVATION LOG TABLE -->
-  <div class="card bottom-log">
-    <h2 style="display:flex; justify-content:space-between; align-items:center;">
-      <span>Observation Log (Angular Momentum Virtual e-Lab Table)</span>
-      <button class="preset-btn" onclick="angClearLog()">Clear Log</button>
-    </h2>
-    <table class="summary-table">
-      <thead>
-        <tr>
-          <th>Trial</th>
-          <th>Distance r (m)</th>
-          <th>Mass m (kg)</th>
-          <th>Inertia I (kg·m&sup2;)</th>
-          <th>Angular Speed &omega; (rad/s)</th>
-          <th>RPM</th>
-          <th>Angular Momentum L (kg·m&sup2;/s)</th>
-        </tr>
-      </thead>
-      <tbody id="angLogBody"></tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ===================================================================== -->
-<!-- SECTION 2: CONSERVATION OF LINEAR MOMENTUM (1D COLLISIONS)            -->
-<!-- ===================================================================== -->
-<section id="viewLinear" class="view-section">
-  <div class="main-grid">
-    <!-- LEFT PANEL: CONTROLS -->
-    <div class="card">
-      <h2>1. Collision Setup</h2>
-
-      <div class="control-group">
-        <div class="control-header">
-          <label style="color:#60a5fa">Mass of Moving Block (m<sub>1</sub>)</label>
-          <span id="m1Val">4.0 kg</span>
-        </div>
-        <input type="range" id="m1Slider" min="1" max="15" step="0.5" value="4" />
-      </div>
-
-      <div class="control-group">
-        <div class="control-header">
-          <label style="color:#60a5fa">Initial Velocity of Block 1 (u<sub>1</sub>)</label>
-          <span id="u1Val">6.0 m/s</span>
-        </div>
-        <input type="range" id="u1Slider" min="1" max="12" step="0.5" value="6" />
-      </div>
-
-      <div class="control-group">
-        <div class="control-header">
-          <label style="color:#fb923c">Mass of Stationary Block (m<sub>2</sub>)</label>
-          <span id="m2Val">4.0 kg</span>
-        </div>
-        <input type="range" id="m2Slider" min="1" max="15" step="0.5" value="4" />
-      </div>
-
-      <div class="control-group">
-        <div class="control-header">
-          <label>Coefficient of Restitution (e)</label>
-          <span id="eVal">1.00 (Elastic)</span>
-        </div>
-        <input type="range" id="eSlider" min="0" max="1" step="0.05" value="1" />
-        <div class="preset-row">
-          <button class="preset-btn" id="btnInelastic" onclick="linSetRestitution(0)">e = 0 (Stick)</button>
-          <button class="preset-btn" id="btnPartial" onclick="linSetRestitution(0.5)">e = 0.5</button>
-          <button class="preset-btn active" id="btnElastic" onclick="linSetRestitution(1)">e = 1 (Elastic)</button>
-        </div>
-      </div>
-
-      <div class="btn-group">
-        <button class="action btn-play" id="linPlayBtn" onclick="linTogglePlay()">LAUNCH BLOCK 1</button>
-        <button class="action btn-slow" id="linSlowBtn" onclick="linToggleSlowMo()">Slow-Mo: OFF</button>
-        <button class="action btn-reset" onclick="linResetSim()">Reset Track</button>
-      </div>
-
-      <div class="formula-box">
-        <strong>Core Governing Equations:</strong>
-        <div class="eq">m<sub>1</sub>u<sub>1</sub> + 0 = m<sub>1</sub>v<sub>1</sub> + m<sub>2</sub>v<sub>2</sub></div>
-        <div class="eq">e = (v<sub>2</sub> &minus; v<sub>1</sub>) / u<sub>1</sub></div>
-        <div>No matter what value of <strong>e</strong> you choose, <strong>Total Linear Momentum</strong> before and after impact remains 100% identical!</div>
-      </div>
-    </div>
-
-    <!-- CENTER PANEL: CANVAS -->
-    <div class="card sim-container">
-      <h2>2. Frictionless Air-Track Experiment</h2>
-      <div style="position:relative;">
-        <canvas id="linCanvas" class="sim-canvas"></canvas>
-        <div class="hud-overlay" id="linHudText">
-          Phase: <strong>READY TO LAUNCH</strong><br/>
-          Collision Type: <strong>Perfectly Elastic (e = 1.00)</strong><br/>
-          Block 2 Initial Velocity (u<sub>2</sub>): <strong>0.0 m/s (At Rest)</strong>
-        </div>
-      </div>
-      <div class="legend">
-        <span><i class="dot" style="background:#3b82f6"></i> Block 1 (Initially Moving)</span>
-        <span><i class="dot" style="background:#f97316"></i> Block 2 (Initially At Rest)</span>
-        <span><i class="dot" style="background:#22c55e"></i> Velocity Vector (v)</span>
-      </div>
-    </div>
-
-    <!-- RIGHT PANEL: TELEMETRY -->
-    <div class="card">
-      <h2>3. Momentum &amp; Energy Breakdown</h2>
-
-      <div class="stats-grid">
-        <div class="stat-box">
-          <div class="stat-label">Block 1 Velocity (v<sub>1</sub>)</div>
-          <div class="stat-val" id="statV1" style="color:#60a5fa">6.00 m/s</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Block 2 Velocity (v<sub>2</sub>)</div>
-          <div class="stat-val" id="statV2" style="color:#fb923c">0.00 m/s</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Block 1 Momentum (p<sub>1</sub>)</div>
-          <div class="stat-val" id="statP1" style="color:#60a5fa">24.0 kg·m/s</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-label">Block 2 Momentum (p<sub>2</sub>)</div>
-          <div class="stat-val" id="statP2" style="color:#fb923c">0.0 kg·m/s</div>
-        </div>
-      </div>
-
-      <!-- MOMENTUM CONSERVATION BAR -->
-      <div class="bar-card">
-        <div class="bar-header">
-          <strong>Total Linear Momentum (P<sub>total</sub>)</strong>
-          <span id="totalMomVal" style="color:var(--green); font-weight:700;">24.0 kg·m/s</span>
-        </div>
-        <div class="stacked-bar">
-          <div class="seg-1" id="momBar1" style="width:100%"></div>
-          <div class="seg-2" id="momBar2" style="width:0%"></div>
-        </div>
-        <div class="bar-sub">
-          <span style="color:#60a5fa" id="momPct1">p₁: 100%</span>
-          <span style="color:#fb923c" id="momPct2">p₂: 0%</span>
-        </div>
-      </div>
-
-      <!-- KINETIC ENERGY BAR -->
-      <div class="bar-card">
-        <div class="bar-header">
-          <strong>Total Kinetic Energy (KE = &frac12;mv&sup2;)</strong>
-          <span id="totalKeVal" style="color:var(--accent); font-weight:700;">72.0 J</span>
-        </div>
-        <div class="stacked-bar">
-          <div class="seg-1" id="keBar1" style="width:100%"></div>
-          <div class="seg-2" id="keBar2" style="width:0%"></div>
-          <div class="seg-lost" id="keBarLost" style="width:0%"></div>
-        </div>
-        <div class="bar-sub">
-          <span style="color:#60a5fa" id="kePct1">KE₁: 100%</span>
-          <span style="color:#fb923c" id="kePct2">KE₂: 0%</span>
-          <span style="color:#ef4444" id="kePctLost">Lost: 0%</span>
-        </div>
-      </div>
-
-      <!-- BEFORE VS AFTER TABLE -->
-      <table class="summary-table">
-        <thead>
-          <tr>
-            <th>Quantity</th>
-            <th>Before Hit</th>
-            <th>After Hit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Total P (kg·m/s)</td>
-            <td id="tblPBefore">24.00</td>
-            <td id="tblPAfter" style="color:var(--green); font-weight:700;">24.00</td>
-          </tr>
-          <tr>
-            <td>Total KE (J)</td>
-            <td id="tblKEBefore">72.00</td>
-            <td id="tblKEAfter">72.00</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="formula-box">
-        <strong>Try This in Class:</strong><br/>
-        1. Set <strong>m<sub>1</sub> = m<sub>2</sub></strong> and <strong>e = 1</strong> &rarr; Block 1 stops completely and transfers 100% of its momentum to Block 2.<br/>
-        2. Set <strong>e = 0</strong> &rarr; Both blocks stick together and move as one combined mass.
-      </div>
-    </div>
-  </div>
-</section>
-
-<script>
-  // =========================================================================
-  // TAB SWITCHER
-  // =========================================================================
-  let activeTab = 'angular';
-
-  function switchTab(tab) {
-    activeTab = tab;
-    document.getElementById('tabAngular').classList.toggle('active', tab === 'angular');
-    document.getElementById('tabLinear').classList.toggle('active', tab === 'linear');
-    document.getElementById('viewAngular').classList.toggle('active', tab === 'angular');
-    document.getElementById('viewLinear').classList.toggle('active', tab === 'linear');
-
-    resizeCanvases();
-    if (tab === 'linear') {
-      linResetSim();
-    }
-  }
-
-  function resizeCanvases() {
-    const dpr = window.devicePixelRatio || 1;
-    ['angCanvas', 'linCanvas'].forEach(id => {
-      const c = document.getElementById(id);
-      if (c && c.clientWidth > 0) {
-        c.width = c.clientWidth * dpr;
-        c.height = c.clientHeight * dpr;
-        c.getContext('2d').setTransform(dpr, 0, 0, dpr, 0, 0);
-      }
-    });
-  }
-  window.addEventListener('resize', resizeCanvases);
-
-  // =========================================================================
-  // MODULE 1: ANGULAR MOMENTUM SIMULATION
-  // =========================================================================
-  const angCanvas = document.getElementById('angCanvas');
-  const angCtx = angCanvas.getContext('2d');
-
-  const I0 = 0.12;             // Rod base inertia (kg*m^2)
-  const conservedL = 3.17;     // Conserved angular momentum (kg*m^2/s)
-  let angR = 1.00;             // Radius in meters
-  let angM = 0.50;             // Mass per weight in kg
-  let angTheta = 0.4;          // Current rotation angle (rad)
-  let angRunning = true;
-  let angSliding = false;
-  let angSlideTarget = 0.40;
-  let angTrail = [];
-  let angTrialCount = 0;
-
-  function getAngPhysics() {
-    const weightsI = 2 * angM * angR * angR;
-    const totalI = I0 + weightsI;
-    const omega = conservedL / totalI;
-    const rpm = (omega * 60) / (2 * Math.PI);
-    const keRot = 0.5 * totalI * omega * omega;
-    return { weightsI, totalI, omega, rpm, keRot };
-  }
-
-  document.getElementById('angRSlider').addEventListener('input', ev => {
-    angSliding = false;
-    angR = parseFloat(ev.target.value);
-    document.getElementById('angRVal').textContent = angR.toFixed(2) + ' m';
-    document.getElementById('angBtnLong').classList.toggle('active', Math.abs(angR - 1.00) < 0.02);
-    document.getElementById('angBtnShort').classList.toggle('active', Math.abs(angR - 0.40) < 0.02);
-    angTrail = [];
-  });
-
-  document.getElementById('angMSlider').addEventListener('input', ev => {
-    angM = parseFloat(ev.target.value);
-    document.getElementById('angMVal').textContent = angM.toFixed(2) + ' kg';
-  });
-
-  function angSetCase(mode) {
-    angSliding = false;
-    angR = mode === 'long' ? 1.00 : 0.40;
-    document.getElementById('angRSlider').value = angR;
-    document.getElementById('angRVal').textContent = angR.toFixed(2) + ' m';
-    document.getElementById('angBtnLong').classList.toggle('active', mode === 'long');
-    document.getElementById('angBtnShort').classList.toggle('active', mode === 'short');
-    angTrail = [];
-  }
-
-  function angAnimateSlide() {
-    angRunning = true;
-    document.getElementById('angPlayBtn').textContent = 'PAUSE ROTATION';
-    document.getElementById('angPlayBtn').classList.add('paused');
-    angSlideTarget = angR > 0.70 ? 0.40 : 1.00;
-    angSliding = true;
-  }
-
-  function angTogglePlay() {
-    angRunning = !angRunning;
-    const btn = document.getElementById('angPlayBtn
+        <div class="formula-box">
+          <strong>Core Governing Equations:</strong>
+          <div class="eq">I = I<sub>0</sub> + 2mr<sup>2</sup></div>
+          <div class="eq">L = I
