@@ -3,581 +3,520 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conservation of Linear Momentum — Virtual Physics e-Lab</title>
+  <title>Physics Around Us — Rocket Propulsion &amp; Variable-Mass Momentum Lab</title>
   <style>
     :root {
-      --bg: #0b1120;
-      --panel: #0f172a;
-      --card: #1e293b;
-      --border: #334155;
-      --text: #f8fafc;
+      --bg: #0b0f19;
+      --panel: #131a2a;
+      --panel-border: #23304d;
+      --text: #e2e8f0;
       --muted: #94a3b8;
-      --cyan: #38bdf8;
-      --purple: #8b5cf6;
+      --accent: #38bdf8;
+      --rocket: #3b82f6;
+      --exhaust: #f97316;
       --green: #22c55e;
-      --orange: #f97316;
+      --red: #ef4444;
+      --purple: #a855f7;
       --yellow: #facc15;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 20px;
-      line-height: 1.5;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     header {
+      background: linear-gradient(90deg, #0f172a, #1e293b);
+      border-bottom: 1px solid var(--panel-border);
+      padding: 14px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
     }
 
     header h1 {
-      font-size: 1.35rem;
-      letter-spacing: 0.5px;
-      color: var(--yellow);
-      text-transform: uppercase;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.3px;
     }
 
-    header p {
-      font-size: 0.85rem;
-      color: var(--muted);
-    }
+    header h1 span { color: var(--accent); }
 
     .badge {
-      background: rgba(56, 189, 248, 0.15);
-      border: 1px solid var(--cyan);
-      color: var(--cyan);
-      padding: 4px 10px;
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--accent);
+      padding: 5px 12px;
       border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 600;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .page-wrap {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
     }
 
     .main-grid {
       display: grid;
-      grid-template-columns: 1.35fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
+      grid-template-columns: 330px 1fr 340px;
+      gap: 14px;
     }
-
-    @media (max-width: 900px) {
+    @media (max-width: 1150px) {
       .main-grid { grid-template-columns: 1fr; }
     }
 
     .card {
       background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
     }
 
-    .canvas-wrap {
+    .card h2 {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--accent);
+      border-bottom: 1px solid var(--panel-border);
+      padding-bottom: 8px;
+    }
+
+    .control-group { display: flex; flex-direction: column; gap: 6px; }
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+    }
+    .control-header label { color: var(--text); font-weight: 500; }
+    .control-header span { color: var(--accent); font-family: monospace; font-weight: 700; }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    input[type="range"]:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .preset-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .preset-btn {
+      padding: 7px 6px;
+      border-radius: 7px;
+      border: 1px solid var(--panel-border);
+      background: #0f172a;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .preset-btn.active {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    button.action {
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+    button.action:active { transform: scale(0.97); }
+    .btn-ignite { background: var(--exhaust); color: #fff; grid-column: span 2; font-size: 0.94rem; }
+    .btn-ignite.burning { background: var(--green); }
+    .btn-slow { background: var(--purple); color: #fff; }
+    .btn-reset { background: #334155; color: #fff; }
+    .btn-record { background: rgba(34, 197, 94, 0.18); border: 1px solid var(--green) !important; color: #4ade80; grid-column: span 2; }
+
+    .formula-box {
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .formula-box strong { color: #fff; }
+    .eq {
+      font-family: 'Cambria Math', 'Times New Roman', serif;
+      font-size: 0.96rem;
+      color: var(--accent);
+      text-align: center;
+      margin: 6px 0;
+      background: rgba(56, 189, 248, 0.08);
+      padding: 6px;
+      border-radius: 6px;
+    }
+
+    .sim-container {
       position: relative;
-      width: 100%;
-      aspect-ratio: 16 / 10;
-      background: #070b14;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    canvas {
+    canvas#rocketCanvas {
       width: 100%;
-      height: 100%;
+      height: 430px;
+      background: #050811;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
       display: block;
     }
 
-    .clack-overlay {
+    .hud-overlay {
       position: absolute;
       top: 14px;
-      right: 18px;
-      text-align: right;
+      left: 14px;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      line-height: 1.5;
       pointer-events: none;
     }
 
-    .clack-count {
-      font-size: 2.6rem;
+    .vel-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(11, 15, 25, 0.88);
+      border: 1px solid var(--panel-border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-align: right;
+      pointer-events: none;
+    }
+    .vel-badge .big {
+      font-size: 1.45rem;
       font-weight: 800;
-      line-height: 1;
-      color: var(--text);
-      font-variant-numeric: tabular-nums;
-      text-shadow: 0 0 18px rgba(56, 189, 248, 0.45);
+      font-family: monospace;
+      color: var(--yellow);
     }
-
-    .clack-label {
-      font-size: 0.75rem;
+    .vel-badge .sub {
+      font-size: 0.68rem;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--cyan);
+      letter-spacing: 1px;
+      color: var(--accent);
       font-weight: 700;
     }
 
-    .controls-bar {
+    .legend {
       display: flex;
+      gap: 16px;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    button {
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 8px 13px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-
-    button:hover { border-color: var(--cyan); }
-    button.primary { background: var(--cyan); color: #0b1120; border-color: var(--cyan); }
-    button.active { background: var(--orange); color: #fff; border-color: var(--orange); }
-    button.green { background: rgba(34, 197, 94, 0.15); border-color: var(--green); color: var(--green); }
-
-    .metrics-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .metrics-header h2 {
-      font-size: 0.9rem;
-      letter-spacing: 0.8px;
-      color: var(--cyan);
-      text-transform: uppercase;
-    }
-
-    .metric-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--card);
-      padding: 9px 12px;
-      border-radius: 8px;
-      margin-bottom: 8px;
-      font-size: 0.85rem;
-    }
-
-    .metric-val {
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      color: var(--yellow);
-    }
-
-    .phase-box {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: #070b14;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px;
-      margin-top: 10px;
-    }
-
-    #phaseCanvas {
-      width: 115px;
-      height: 115px;
-      flex-shrink: 0;
-    }
-
-    .phase-info h3 {
-      font-size: 0.82rem;
-      color: var(--green);
-      margin-bottom: 4px;
-    }
-
-    .phase-info p {
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       color: var(--muted);
+      justify-content: center;
     }
+    .legend span { display: flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
 
-    .callout {
-      margin-top: 10px;
-      padding: 10px 12px;
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-box {
+      background: #0b1120;
+      border: 1px solid #1e293b;
       border-radius: 8px;
-      background: rgba(249, 115, 22, 0.12);
-      border: 1px solid rgba(249, 115, 22, 0.45);
-      font-size: 0.8rem;
-      color: #fed7aa;
+      padding: 8px 10px;
     }
+    .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; }
+    .stat-val { font-size: 1.02rem; font-weight: 700; font-family: monospace; margin-top: 2px; }
 
-    .table-card h2 {
-      font-size: 0.92rem;
-      color: var(--yellow);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 12px;
+    .bar-card {
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .bar-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      font-size: 0.78rem;
+    }
+    .stacked-bar {
+      height: 18px;
+      background: #1e293b;
+      border-radius: 9px;
+      overflow: hidden;
+      display: flex;
+    }
+    .seg-dry { background: #64748b; height: 100%; transition: width 0.08s linear; }
+    .seg-fuel { background: var(--green); height: 100%; transition: width 0.08s linear; }
+    .seg-rocket { background: var(--rocket); height: 100%; transition: width 0.08s linear; }
+    .seg-exhaust { background: var(--exhaust); height: 100%; transition: width 0.08s linear; }
+
+    .bar-sub {
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+      font-size: 0.75rem;
     }
 
-    table {
+    table.summary-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.83rem;
+      font-size: 0.78rem;
+      background: #0b1120;
+      border-radius: 8px;
+      overflow: hidden;
     }
-
-    th, td {
-      text-align: left;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      font-variant-numeric: tabular-nums;
+    table.summary-table th, table.summary-table td {
+      padding: 8px;
+      border: 1px solid #1e293b;
+      text-align: center;
+      font-family: monospace;
     }
-
-    th {
-      color: var(--muted);
-      font-size: 0.74rem;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
+    table.summary-table th {
+      background: #162033;
+      color: var(--accent);
+      font-family: sans-serif;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div>
-        <h1>Conservation of Linear Momentum — Virtual e-Lab</h1>
-        <p>Elastic two-block &amp; rigid wall collisions: counting impacts to compute &pi;</p>
-      </div>
-      <span class="badge">m&#8321;v&#8321; + m&#8322;v&#8322; = const &nbsp;|&nbsp; KE = const</span>
-    </header>
 
-    <div class="main-grid">
-      <!-- Simulation Viewport -->
-      <div class="card">
-        <div class="canvas-wrap">
-          <canvas id="simCanvas" width="960" height="600"></canvas>
-          <div class="clack-overlay">
-            <div class="clack-count" id="clackDisplay">0</div>
-            <div class="clack-label">Total Clacks</div>
-          </div>
-        </div>
+<header>
+  <h1>Physics Around Us: <span>Rocket Propulsion &amp; Variable-Mass Momentum</span></h1>
+  <div class="badge">Bonus e-Lab Module &bull; &Delta;v = v<sub>e</sub> ln(m<sub>0</sub> / m<sub>f</sub>)</div>
+</header>
 
-        <div class="controls-bar">
-          <button class="primary" id="playPauseBtn">Pause</button>
-          <button id="resetBtn">Reset</button>
-          <button class="preset-btn active" data-mass="1">1 kg (3)</button>
-          <button class="preset-btn" data-mass="100">100 kg (31)</button>
-          <button class="preset-btn" data-mass="10000">10,000 kg (314)</button>
-          <button class="preset-btn" data-mass="1000000">1,000,000 kg (3141)</button>
-          <button class="preset-btn" data-mass="100000000">100,000,000 kg (31415)</button>
-          <button class="green" id="recordBtn">Record Trial</button>
-          <button id="soundBtn">Sound: ON</button>
+<div class="page-wrap">
+  <div class="main-grid">
+    <!-- LEFT PANEL: CONTROLS -->
+    <div class="card">
+      <h2>1. Thruster &amp; Propellant Setup</h2>
+
+      <div class="control-group">
+        <div class="control-header">
+          <label style="color:#fb923c">Exhaust Velocity (v<sub>e</sub>)</label>
+          <span id="veVal">2,500 m/s</span>
         </div>
+        <input type="range" id="veSlider" min="1000" max="4500" step="100" value="2500" />
       </div>
 
-      <!-- Live Physics Metrics -->
-      <div class="card">
-        <div class="metrics-header">
-          <h2>Live Physics Metrics</h2>
-          <span id="statusTag" style="font-size:0.75rem; color:var(--green); font-weight:700;">● RUNNING</span>
+      <div class="control-group">
+        <div class="control-header">
+          <label style="color:#4ade80">Initial Propellant Mass (m<sub>fuel</sub>)</label>
+          <span id="fuelVal">600 kg</span>
         </div>
+        <input type="range" id="fuelSlider" min="200" max="1200" step="50" value="600" />
+      </div>
 
-        <div class="metric-row">
-          <span>Mass Ratio (m&#8322; / m&#8321;)</span>
-          <span class="metric-val" id="massRatioVal">1 : 1</span>
+      <div class="control-group">
+        <div class="control-header">
+          <label style="color:#60a5fa">Mass Flow / Burn Rate (dm/dt)</label>
+          <span id="rateVal">60 kg/s</span>
         </div>
-        <div class="metric-row">
-          <span>Block 1 Velocity (v&#8321;)</span>
-          <span class="metric-val" id="v1Val">0.00 m/s</span>
-        </div>
-        <div class="metric-row">
-          <span>Block 2 Velocity (v&#8322;)</span>
-          <span class="metric-val" id="v2Val">-1.00 m/s</span>
-        </div>
-        <div class="metric-row">
-          <span>Total Kinetic Energy (&#189;mv&#178;)</span>
-          <span class="metric-val" id="keVal">0.500 J</span>
-        </div>
-        <div class="metric-row">
-          <span>Linear Momentum (p = m&#8321;v&#8321; + m&#8322;v&#8322;)</span>
-          <span class="metric-val" id="momVal">-1.00 kg·m/s</span>
-        </div>
+        <input type="range" id="rateSlider" min="20" max="150" step="10" value="60" />
+      </div>
 
-        <div class="phase-box">
-          <canvas id="phaseCanvas" width="230" height="230"></canvas>
-          <div class="phase-info">
-            <h3>Energy + Momentum = Circle</h3>
-            <p>Each collision reflects state <strong>(&#8730;m&#8321;v&#8321;, &#8730;m&#8322;v&#8322;)</strong> across a constant-energy circle by angle <strong>&theta; = arctan(&#8730;(m&#8321;/m&#8322;))</strong>, inscribing &pi; digits.</p>
-          </div>
+      <div class="control-group">
+        <div class="control-header">
+          <label>Engine Presets</label>
+          <span>Compare I<sub>sp</sub></span>
         </div>
+        <div class="preset-row">
+          <button class="preset-btn" id="btnSolid" onclick="applyPreset('solid')">Solid Booster</button>
+          <button class="preset-btn active" id="btnKero" onclick="applyPreset('kero')">Kerosene/LOX</button>
+          <button class="preset-btn" id="btnHydro" onclick="applyPreset('hydro')">Hydrolox</button>
+        </div>
+      </div>
 
-        <div class="callout" id="physicsNote">
-          <strong>1 kg vs 1 kg:</strong> Equal masses swap velocities on impact (elastic momentum transfer), producing exactly <strong>3</strong> collisions before separating.
-        </div>
+      <div class="btn-group">
+        <button class="action btn-ignite" id="igniteBtn" onclick="toggleBurn()">IGNITE ENGINE</button>
+        <button class="action btn-slow" id="slowBtn" onclick="toggleSlowMo()">Slow-Mo: OFF</button>
+        <button class="action btn-reset" onclick="resetMission()">Reset Mission</button>
+        <button class="action btn-record" onclick="recordMissionTrial()">Record Burn to Log</button>
+      </div>
+
+      <div class="formula-box">
+        <strong>Tsiolkovsky Rocket Equation:</strong>
+        <div class="eq">F<sub>thrust</sub> = v<sub>e</sub> &middot; (dm/dt)</div>
+        <div class="eq">&Delta;v = v<sub>e</sub> &middot; ln(m<sub>0</sub> / m<sub>f</sub>)</div>
+        <div>Because the rocket gets lighter as fuel burns, its <strong>acceleration increases</strong> continuously even at constant thrust!</div>
       </div>
     </div>
 
-    <!-- Observation Log -->
-    <div class="card table-card">
-      <h2>
-        <span>Observation Log (Virtual e-Lab Table)</span>
-        <button id="clearLogBtn" style="font-size:0.74rem; padding:5px 10px;">Clear Log</button>
-      </h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Trial</th>
-            <th>m&#8321; (kg)</th>
-            <th>m&#8322; (kg)</th>
-            <th>Mass Ratio (100&#8319;)</th>
-            <th>Total Clacks</th>
-            <th>&pi; Approximation</th>
-          </tr>
-        </thead>
-        <tbody id="logBody"></tbody>
-      </table>
+    <!-- CENTER PANEL: CANVAS -->
+    <div class="card sim-container">
+      <h2>2. Zero-Gravity Deep Space Firing Range</h2>
+      <div style="position:relative;">
+        <canvas id="rocketCanvas"></canvas>
+        <div class="hud-overlay" id="hudText">
+          Status: <strong style="color:#38bdf8">STANDBY ON PAD</strong><br/>
+          Dry Structure Mass (m<sub>f</sub>): <strong>400 kg</strong><br/>
+          External Net Force: <strong>0.0 N (Isolated System)</strong>
+        </div>
+        <div class="vel-badge">
+          <div class="big" id="velHud">0.0 m/s</div>
+          <div class="sub">Rocket Speed (v)</div>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="dot" style="background:#3b82f6"></i> Rocket Hull (400 kg Dry)</span>
+        <span><i class="dot" style="background:#22c55e"></i> Onboard Propellant Tank</span>
+        <span><i class="dot" style="background:#f97316"></i> High-Speed Exhaust Plume</span>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: TELEMETRY -->
+    <div class="card">
+      <h2>3. Live Propulsion Telemetry</h2>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Instant Thrust (F)</div>
+          <div class="stat-val" id="statThrust" style="color:#fb923c">150.0 kN</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Acceleration (a = F/m)</div>
+          <div class="stat-val" id="statAccel" style="color:#facc15">150.0 m/s&sup2;</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Rocket Momentum (+p)</div>
+          <div class="stat-val" id="statPRocket" style="color:#60a5fa">0 kg·m/s</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Exhaust Momentum (&minus;p)</div>
+          <div class="stat-val" id="statPExhaust" style="color:#fb923c">0 kg·m/s</div>
+        </div>
+      </div>
+
+      <!-- MASS FRACTION BAR -->
+      <div class="bar-card">
+        <div class="bar-header">
+          <strong>Current Rocket Mass (m)</strong>
+          <span id="statMass" style="color:var(--green); font-weight:700;">1,000 kg</span>
+        </div>
+        <div class="stacked-bar">
+          <div class="seg-dry" id="barDry" style="width:40%"></div>
+          <div class="seg-fuel" id="barFuel" style="width:60%"></div>
+        </div>
+        <div class="bar-sub">
+          <span style="color:#94a3b8">Dry Hull: 400 kg</span>
+          <span style="color:#4ade80" id="barFuelTxt">Fuel: 600 kg</span>
+        </div>
+      </div>
+
+      <!-- MOMENTUM CONSERVATION BAR -->
+      <div class="bar-card">
+        <div class="bar-header">
+          <strong>Net System Momentum (P<sub>net</sub>)</strong>
+          <span id="statPNet" style="color:var(--green); font-weight:700;">0.0 kg·m/s</span>
+        </div>
+        <div class="stacked-bar">
+          <div class="seg-rocket" id="barMomRocket" style="width:50%"></div>
+          <div class="seg-exhaust" id="barMomExhaust" style="width:50%"></div>
+        </div>
+        <div class="bar-sub">
+          <span style="color:#60a5fa">Forward (+p<sub>rocket</sub>)</span>
+          <span style="color:#fb923c">Backward (&minus;p<sub>gas</sub>)</span>
+        </div>
+      </div>
+
+      <div class="formula-box" id="liveInsight">
+        <strong>Momentum Balance:</strong> Before ignition, total system momentum is <strong>0 kg·m/s</strong>. Every kilogram of gas thrown backward gives the rocket an equal forward impulse.
+      </div>
     </div>
   </div>
 
-  <script>
-    const canvas = document.getElementById("simCanvas");
-    const ctx = canvas.getContext("2d");
-    const phaseCanvas = document.getElementById("phaseCanvas");
-    const pCtx = phaseCanvas.getContext("2d");
+  <!-- OBSERVATION LOG TABLE -->
+  <div class="card">
+    <h2 style="display:flex; justify-content:space-between; align-items:center;">
+      <span>Mission Flight Log (Compare Simulated &Delta;v vs. Tsiolkovsky Equation)</span>
+      <button class="preset-btn" onclick="clearMissionLog()">Clear Log</button>
+    </h2>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Flight</th>
+          <th>Exhaust v<sub>e</sub></th>
+          <th>Mass Ratio (m<sub>0</sub> / m<sub>f</sub>)</th>
+          <th>Simulated Speed</th>
+          <th>Theoretical &Delta;v = v<sub>e</sub> ln(m<sub>0</sub>/m<sub>f</sub>)</th>
+          <th>Net System P</th>
+        </tr>
+      </thead>
+      <tbody id="missionLogBody"></tbody>
+    </table>
+  </div>
+</div>
 
-    let audioCtx = null;
-    let soundEnabled = true;
-    let lastSoundTime = 0;
+<script>
+  const canvas = document.getElementById('rocketCanvas');
+  const ctx = canvas.getContext('2d');
 
-    function playClack(intensity = 1) {
-      if (!soundEnabled) return;
-      const now = performance.now();
-      if (now - lastSoundTime < 14) return;
-      lastSoundTime = now;
+  // Physics constants & parameters
+  const dryMass = 400;        // kg
+  let initialFuel = 600;      // kg
+  let fuelMass = initialFuel; // kg
+  let ve = 2500;              // m/s
+  let burnRate = 60;          // kg/s
 
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === "suspended") audioCtx.resume();
+  // Dynamic state
+  let rocketVel = 0;          // m/s
+  let pExhaust = 0;           // kg*m/s (negative direction)
+  let burning = false;
+  let slowMo = false;
+  let flightTime = 0;
+  let trialCount = 0;
 
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "triangle";
-      const freq = 620 + Math.min(intensity * 180, 700);
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(140, audioCtx.currentTime + 0.035);
+  // Visuals
+  let stars = [];
+  let particles = [];
+  let rocketVisualX = 180;
 
-      gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.035);
+  function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.clientWidth * dpr;
+    canvas.height = canvas.clientHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    initStars();
+  }
+  window.addEventListener('resize', resizeCanvas);
 
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.04);
-    }
-
-    const wallX = 90;
-    const floorY = 430;
-    let m1 = 1;
-    let m2 = 1;
-    let x1 = 260;
-    let x2 = 520;
-    let w1 = 56;
-    let w2 = 56;
-    let v1 = 0;
-    let v2 = -1.6;
-    let initialKE = 0.5 * m2 * v2 * v2;
-    let clacks = 0;
-    let running = true;
-    let phasePoints = [];
-    let ripples = [];
-    let trialCount = 0;
-
-    function getBlockSize(mass) {
-      const power = Math.log10(mass) / 2;
-      return Math.round(56 + power * 28);
-    }
-
-    function setMass(newM2) {
-      m2 = newM2;
-      w1 = 56;
-      w2 = getBlockSize(m2);
-      x1 = 260;
-      x2 = 500;
-      v1 = 0;
-      v2 = -1.8;
-      initialKE = 0.5 * m2 * v2 * v2;
-      clacks = 0;
-      ripples = [];
-      phasePoints = [{ x: 0, y: -Math.sqrt(m2) * Math.abs(v2) }];
-      running = true;
-      document.getElementById("playPauseBtn").textContent = "Pause";
-
-      const notes = {
-        1: "<strong>1 kg vs 1 kg:</strong> Equal masses swap velocities on impact, yielding <strong>3</strong> collisions.",
-        100: "<strong>1 kg vs 100 kg:</strong> Momentum transfers gradually over <strong>31</strong> rapid bounces before reversing the heavy block.",
-        10000: "<strong>1 kg vs 10,000 kg:</strong> High mass inertia creates a burst of <strong>314</strong> elastic collisions (&pi; &times; 10&#178;).",
-        1000000: "<strong>1 kg vs 1,000,000 kg:</strong> Sub-stepped elastic solver tracks all <strong>3,141</strong> momentum exchanges (&pi; &times; 10&#179;).",
-        100000000: "<strong>1 kg vs 100,000,000 kg:</strong> Extreme mass ratio produces <strong>31,415</strong> collisions—five digits of &pi;!"
-      };
-      document.getElementById("physicsNote").innerHTML = notes[m2] || "";
-    }
-
-    function addRipple(x, y, color) {
-      if (ripples.length < 18) {
-        ripples.push({ x, y, r: 6, alpha: 0.9, color });
-      }
-    }
-
-    function stepPhysics() {
-      if (!running) return;
-
-      const power = Math.log10(m2);
-      const subSteps = power >= 8 ? 35000 : power >= 6 ? 6000 : power >= 4 ? 1200 : 120;
-      const dt = 1 / subSteps;
-
-      for (let i = 0; i < subSteps; i++) {
-        x1 += v1 * dt;
-        x2 += v2 * dt;
-
-        if (x1 + w1 >= x2) {
-          const overlap = (x1 + w1) - x2;
-          x1 -= overlap * 0.5;
-          x2 += overlap * 0.5;
-
-          const newV1 = ((m1 - m2) / (m1 + m2)) * v1 + ((2 * m2) / (m1 + m2)) * v2;
-          const newV2 = ((2 * m1) / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
-          v1 = newV1;
-          v2 = newV2;
-          clacks++;
-
-          if (i % Math.max(1, Math.floor(subSteps / 40)) === 0) {
-            playClack(Math.abs(v1 - v2));
-            addRipple(x2, floorY - w1 / 2, "#38bdf8");
-            phasePoints.push({ x: Math.sqrt(m1) * v1, y: Math.sqrt(m2) * v2 });
-            if (phasePoints.length > 400) phasePoints.shift();
-          }
-        }
-
-        if (x1 <= wallX) {
-          x1 = wallX;
-          v1 = -v1;
-          clacks++;
-
-          if (i % Math.max(1, Math.floor(subSteps / 40)) === 0) {
-            playClack(Math.abs(v1));
-            addRipple(wallX, floorY - w1 / 2, "#22c55e");
-            phasePoints.push({ x: Math.sqrt(m1) * v1, y: Math.sqrt(m2) * v2 });
-            if (phasePoints.length > 400) phasePoints.shift();
-          }
-        }
-      }
-    }
-
-    function drawScene() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.strokeStyle = "rgba(51, 65, 85, 0.25)";
-      ctx.lineWidth = 1;
-      for (let gx = wallX; gx < canvas.width; gx += 40) {
-        ctx.beginPath(); ctx.moveTo(gx, 40); ctx.lineTo(gx, floorY); ctx.stroke();
-      }
-      for (let gy = 40; gy < floorY; gy += 40) {
-        ctx.beginPath(); ctx.moveTo(wallX, gy); ctx.lineTo(canvas.width, gy); ctx.stroke();
-      }
-
-      ctx.strokeStyle = "#64748b";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(wallX, 50);
-      ctx.lineTo(wallX, floorY);
-      ctx.lineTo(canvas.width - 20, floorY);
-      ctx.stroke();
-
-      ctx.strokeStyle = "rgba(148, 163, 184, 0.35)";
-      ctx.lineWidth = 1.5;
-      for (let wy = 65; wy < floorY; wy += 18) {
-        ctx.beginPath();
-        ctx.moveTo(wallX - 14, wy + 10);
-        ctx.lineTo(wallX, wy);
-        ctx.stroke();
-      }
-
-      for (let i = ripples.length - 1; i >= 0; i--) {
-        const rp = ripples[i];
-        ctx.strokeStyle = rp.color;
-        ctx.globalAlpha = rp.alpha;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
-        ctx.stroke();
-        rp.r += 2.2;
-        rp.alpha -= 0.045;
-        if (rp.alpha <= 0) ripples.splice(i, 1);
-      }
-      ctx.globalAlpha = 1;
-
-      ctx.shadowColor = "rgba(34, 197, 94, 0.5)";
-      ctx.shadowBlur = 16;
-      ctx.fillStyle = "#22c55e";
-      ctx.beginPath();
-      ctx.roundRect(x1, floorY - w1, w1, w1, 8);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = "#4ade80";
-      ctx.font = "bold 15px sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillText("1 kg", x1 + w1 / 2, floorY + 24);
-
-      const drawX2 = Math.min(x2, canvas.width - w2 - 10);
-      const grad = ctx.createLinearGradient(drawX2, floorY - w2, drawX2 + w2, floorY);
-      grad.addColorStop(0, "#f97316");
-      grad.addColorStop(1, "#ec4899");
-
-      ctx.shadowColor = "rgba(249, 115, 22, 0.45)";
-      ctx.shadowBlur = 20;
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.roundRect(drawX2, floorY - w2, w2, w2, 10);
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      ctx.fillStyle = "#fdba74";
-      ctx.font = "bold 16px sans-serif";
-      ctx.fillText(`${m2.toLocaleString()} kg`, drawX2 + w2 / 2, floorY - w2 - 12);
-
-      if (x2 > canvas.width - w2 - 10) {
-        ctx.fillStyle = "#94a3b8";
-        ctx.font = "12px sans-serif";
-        ctx.fillText(`Block 2 receding → (${Math.round(x2)} px)`, canvas.width - 140, 80);
-      }
-    }
-
-    function drawPhaseSpace() {
-      const W = phaseCanvas.width;
-      const H = phaseCanvas.height;
-      const cx = W / 2;
-      const cy = H / 2;
-      const R = 88;
-
-      pCtx.clearRect(0, 0, W, H);
-
-      pCtx.strokeStyle = "#334155";
-      pCtx.lineWidth = 1;
-      pCtx.beginPath();
-      pCtx.moveTo(10, cy); pCtx.lineTo(W - 10, cy);
-      pCtx.moveTo(cx, 10); pCtx.lineTo(cx, H - 10);
-      pCtx.stroke();
-
-      pCtx.strokeStyle = "rgba(148, 163, 184, 0
+  function initStars() {
+    const w = canvas.clientWidth || 700;
+    const h = canvas.clientHeight || 43
